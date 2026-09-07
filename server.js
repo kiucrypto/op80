@@ -1,5 +1,5 @@
 const express = require('express');
-const http = require('http');
+const http = http = require('http');
 const { Server } = require('socket.io');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
@@ -11,8 +11,11 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Corrección aplicada: Ruta estática absoluta limpia
-app.use(express.static(__dirname));
+// Directorio raíz absoluto forzado para evitar errores de ruta en móviles
+const ROOT_DIR = __dirname;
+console.log("-> Directorio de trabajo actual:", ROOT_DIR);
+
+app.use(express.static(ROOT_DIR));
 
 const server = http.createServer(app);
 const io = new Server(server, { 
@@ -21,7 +24,6 @@ const io = new Server(server, {
     pingInterval: 25000
 });
 
-// Configuración de transporte de correo
 const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST || 'smtp.gmail.com',
     port: 587,
@@ -32,7 +34,6 @@ const transporter = nodemailer.createTransport({
     }
 });
 
-// Bases de datos en memoria optimizadas
 const usersDB = new Map();
 usersDB.set('usu6y', { password: 'password123', license: 'OP80-PRO-9999', hasAccess: true });
 
@@ -138,12 +139,13 @@ io.on('connection', (socket) => {
     });
 });
 
-// Corrección aplicada: Envío seguro y directo del index.html con root
+// Ruta SPA blindada con ruta absoluta explícita
 app.get('*', (req, res) => {
-    res.sendFile('index.html', { root: __dirname }, (err) => {
+    const indexPath = path.resolve(ROOT_DIR, 'index.html');
+    res.sendFile(indexPath, (err) => {
         if (err) {
-            console.error("Error sirviendo index.html:", err);
-            res.status(500).send('op80.com Gateway Error: index.html missing from root directory.');
+            console.error("Error crítico sirviendo index.html en ruta:", indexPath);
+            res.status(500).send(`op80.com Gateway Error: index.html missing from root directory (${ROOT_DIR}).`);
         }
     });
 });
