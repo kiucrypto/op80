@@ -8,97 +8,114 @@ const server = http.createServer(app);
 const io = new Server(server);
 
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Base de datos en memoria para múltiples usuarios y licencias
-// Estructura: { username: { password, expiresAt, activo, codigoCanjeado } }
-const baseDeDatosUsuarios = {};
+// Database of valid license codes (6 and 12 months)
+const codigosValidos = new Set([
+    // 6 Months
+    "OP80-7392", "OP80-1846", "OP80-9051", "OP80-3278", "OP80-6410", "OP80-2589", "OP80-8734", "OP80-4167", "OP80-0925", "OP80-5683",
+    "OP80-2947", "OP80-8163", "OP80-4702", "OP80-9538", "OP80-1264", "OP80-6875", "OP80-3409", "OP80-7926", "OP80-0518", "OP80-8641",
+    "OP80-2357", "OP80-9084", "OP80-5726", "OP80-1439", "OP80-6812", "OP80-3975", "OP80-8240", "OP80-4608", "OP80-7153", "OP80-2864",
+    "OP80-9347", "OP80-1582", "OP80-6079", "OP80-3726", "OP80-8495", "OP80-2148", "OP80-7630", "OP80-4957", "OP80-0286", "OP80-5814",
+    "OP80-9462", "OP80-1375", "OP80-8049", "OP80-3691", "OP80-6728", "OP80-2450", "OP80-9186", "OP80-4537", "OP80-7964", "OP80-0823",
+    "OP80-6385", "OP80-3197", "OP80-8750", "OP80-5246", "OP80-1608", "OP80-9473", "OP80-2861", "OP80-7039", "OP80-4512", "OP80-8296",
+    "OP80-3740", "OP80-6158", "OP80-0927", "OP80-5483", "OP80-7619", "OP80-2035", "OP80-9864", "OP80-4178", "OP80-6350", "OP80-1729",
+    "OP80-8046", "OP80-3592", "OP80-7281", "OP80-0465", "OP80-5937", "OP80-8610", "OP80-2349", "OP80-9172", "OP80-4806", "OP80-7564",
+    "OP80-1287", "OP80-6943", "OP80-3705", "OP80-8426", "OP80-5198", "OP80-0631", "OP80-9275", "OP80-4160", "OP80-7832", "OP80-2496",
+    "OP80-6054", "OP80-8713", "OP80-3548", "OP80-9620", "OP80-1473", "OP80-5389", "OP80-7206", "OP80-3941", "OP80-8167", "OP80-0524",
+    "OP80-6790", "OP80-4385", "OP80-9251", "OP80-2678", "OP80-7436", "OP80-1089", "OP80-5942", "OP80-8360", "OP80-4715", "OP80-6893",
+    "OP80-3208", "OP80-9574", "OP80-2146", "OP80-7659", "OP80-4832", "OP80-0397", "OP80-6284", "OP80-8516", "OP80-3769", "OP80-9420",
+    "OP80-1578", "OP80-6043", "OP80-7935", "OP80-2681", "OP80-5167", "OP80-8304", "OP80-4926", "OP80-0753", "OP80-9671", "OP80-3418",
+    "OP80-7850", "OP80-6297", "OP80-1046", "OP80-5738", "OP80-8962", "OP80-2374", "OP80-6819", "OP80-4503", "OP80-9187", "OP80-3265",
+    "OP80-7641", "OP80-0894", "OP80-5326", "OP80-8470", "OP80-2953", "OP80-6108", "OP80-9735", "OP80-1842", "OP80-7269", "OP80-4057",
+    "OP80-8593", "OP80-3410", "OP80-6924", "OP80-0578", "OP80-9341", "OP80-2186", "OP80-7652", "OP80-4839", "OP80-1207", "OP80-5984",
+    "OP80-8376", "OP80-2649", "OP80-7105", "OP80-9468", "OP80-3721", "OP80-6857", "OP80-0492", "OP80-8136", "OP80-2574", "OP80-9048",
+    "OP80-6315", "OP80-4782", "OP80-7961", "OP80-1639", "OP80-5427", "OP80-8804", "OP80-3156", "OP80-7298", "OP80-0647", "OP80-9583",
+    "OP80-4019", "OP80-6735", "OP80-2468", "OP80-8174", "OP80-5390", "OP80-9826", "OP80-1745", "OP80-7062", "OP80-3589", "OP80-6241",
+    "OP80-8957", "OP80-2306", "OP80-7614", "OP80-4830", "OP80-0975", "OP80-6548", "OP80-8291", "OP80-3164", "OP80-7408", "OP80-9527",
+    "OP80-1853", "OP80-6071", "OP80-3948", "OP80-8716", "OP80-2460", "OP80-5189", "OP80-9364", "OP80-7032", "OP80-1498", "OP80-6825",
+    "OP80-4571", "OP80-8206", "OP80-3749", "OP80-9653", "OP80-2180", "OP80-5967", "OP80-8432", "OP80-1604", "OP80-7295", "OP80-4801",
+    "OP80-0572", "OP80-9168", "OP80-6347", "OP80-2859", "OP80-7513", "OP80-4086", "OP80-8724", "OP80-1937", "OP80-5460", "OP80-9682",
+    "OP80-3274", "OP80-6149", "OP80-8590", "OP80-2408", "OP80-7931", "OP80-4657", "OP80-0186", "OP80-6820", "OP80-9375", "OP80-1542",
+    "OP80-7068", "OP80-3984", "OP80-8217", "OP80-5740", "OP80-2695", "OP80-9436", "OP80-3178", "OP80-6504", "OP80-7861", "OP80-0924",
+    "OP80-5387", "OP80-8649", "OP80-4251", "OP80-7196", "OP80-3508", "OP80-9814", "OP80-1763", "OP80-6048", "OP80-8371", "OP80-4920",
+    "OP80-2586", "OP80-9154", "OP80-6738", "OP80-3416", "OP80-7802", "OP80-5297", "OP80-0468", "OP80-8965", "OP80-2140", "OP80-7583",
+    "OP80-4309", "OP80-9674", "OP80-1857", "OP80-6230", "OP80-7496", "OP80-3028", "OP80-8519", "OP80-4763", "OP80-9180", "OP80-2645",
+    "OP80-5907", "OP80-7361", "OP80-0489", "OP80-6827", "OP80-4053", "OP80-8739", "OP80-1268", "OP80-9470", "OP80-5314", "OP80-7692",
+    "OP80-2841", "OP80-6150", "OP80-8396", "OP80-1734", "OP80-9581", "OP80-4267", "OP80-7025", "OP80-3946", "OP80-5810", "OP80-8673",
+    "OP80-2094", "OP80-7438", "OP80-3169", "OP80-6905", "OP80-8247", "OP80-0579", "OP80-9368", "OP80-4516",
+    // 12 Months
+    "61360609-OP80", "2014539-OP80", "373499-OP80", "5278234-OP80", "165835-OP80", "11864-OP80", "6548405-OP80", "2226-OP80", "52434-OP80", "65074-OP80",
+    "26082664-OP80", "4175056-OP80", "38336-OP80", "642645-OP80", "3391-OP80", "86274-OP80", "0248378-OP80", "55002421-OP80", "46998187-OP80", "63567-OP80",
+    "3421167-OP80", "1327-OP80", "6016602-OP80", "47760-OP80", "78489-OP80", "83048953-OP80", "06777-OP80", "1842-OP80", "7953-OP80", "39742-OP80",
+    "11551328-OP80", "1606936-OP80", "13137661-OP80", "12691-OP80", "2963044-OP80", "81335-OP80", "2763246-OP80", "10939-OP80", "991142-OP80", "0586271-OP80",
+    "5230-OP80", "764250-OP80", "362321-OP80", "09402-OP80", "798155-OP80", "5342885-OP80", "67940834-OP80", "83499475-OP80", "20108035-OP80", "03563048-OP80",
+    "2685495-OP80", "4720-OP80", "165896-OP80", "11802958-OP80", "669864-OP80", "05536150-OP80", "114705-OP80", "392762-OP80", "85816-OP80", "88237-OP80",
+    "72539823-OP80", "74032650-OP80", "4250347-OP80", "987929-OP80", "7656-OP80", "180035-OP80", "72852-OP80", "51102-OP80", "71139933-OP80", "7171003-OP80",
+    "768230-OP80", "36519-OP80", "00483-OP80", "2818186-OP80", "69725-OP80", "784901-OP80", "87807222-OP80", "5070332-OP80", "9251-OP80", "9022-OP80",
+    "5820-OP80", "48939-OP80", "50135429-OP80", "357162-OP80", "07148173-OP80", "22225660-OP80", "245704-OP80", "31904-OP80", "2554221-OP80", "34526-OP80",
+    "4491088-OP80", "1357-OP80", "42982988-OP80", "17381-OP80", "9743675-OP80", "6905-OP80", "59758-OP80", "51849-OP80", "9926-OP80", "2709-OP80",
+    "8764695-OP80", "7093082-OP80", "987774-OP80", "67274714-OP80", "20092355-OP80", "719584-OP80", "8602-OP80", "10905542-OP80", "463190-OP80", "27921489-OP80",
+    "9486112-OP80", "002463-OP80", "69427107-OP80", "26108823-OP80", "76771-OP80", "3339500-OP80", "77322-OP80", "44565-OP80", "031487-OP80", "72371519-OP80",
+    "78032-OP80", "59549-OP80", "505294-OP80", "72548-OP80", "4662-OP80", "1312455-OP80", "81732-OP80", "23462423-OP80", "7089-OP80", "9405-OP80",
+    "456330-OP80", "964671-OP80", "72707-OP80", "96766709-OP80", "0550590-OP80", "4797906-OP80", "3025-OP80", "659233-OP80", "3953857-OP80", "54183335-OP80",
+    "4647-OP80", "3471646-OP80", "14199-OP80", "07493376-OP80", "64525277-OP80", "25914-OP80", "034279-OP80", "41643-OP80", "40169972-OP80", "8696346-OP80",
+    "82042496-OP80", "86376812-OP80", "4575767-OP80", "5269-OP80", "97308-OP80", "68378582-OP80", "9325-OP80", "3322593-OP80", "21654-OP80", "719623-OP80",
+    "283271-OP80", "2965846-OP80", "63618-OP80", "708584-OP80", "414898-OP80", "268219-OP80", "0745-OP80", "92469670-OP80", "897338-OP80", "535593-OP80",
+    "8001-OP80", "85406709-OP80", "4176930-OP80", "3758-OP80", "861305-OP80", "88460-OP80", "90065-OP80", "3299-OP80", "58795-OP80", "815920-OP80",
+    "0178-OP80", "13796050-OP80", "84153-OP80", "72277-OP80", "393728-OP80", "59787313-OP80", "55058278-OP80", "99741-OP80", "4070245-OP80", "2063088-OP80",
+    "3620-OP80", "05706980-OP80", "27797-OP80", "3515658-OP80", "6700-OP80", "54133-OP80", "1175055-OP80", "815910-OP80", "661485-OP80", "5331-OP80",
+    "9729489-OP80", "1860599-OP80", "9491781-OP80", "4627126-OP80", "8422-OP80", "16906057-OP80", "6712-OP80", "49519043-OP80", "21872-OP80", "2090-OP80",
+    "2646198-OP80", "2068998-OP80", "772864-OP80", "9846-OP80", "58348042-OP80", "8586-OP80", "7749205-OP80", "65062471-OP80", "3421-OP80", "8203538-OP80",
+    "9782-OP80", "84645-OP80", "32261-OP80", "803535-OP80", "89842-OP80", "34281869-OP80", "7872182-OP80", "98758905-OP80", "17979-OP80", "516839-OP80",
+    "5522-OP80", "10658354-OP80", "7514031-OP80", "4527-OP80", "1213-OP80", "268247-OP80", "7515343-OP80", "30985-OP80", "0008-OP80", "42655719-OP80",
+    "48229021-OP80", "3592111-OP80", "283553-OP80", "297262-OP80", "75484040-OP80", "86836966-OP80", "84932-OP80", "564414-OP80"
+]);
 
-// Códigos de activación válidos generados por tu equipo (po80payments@gmail.com)
-// Puedes agregar más códigos según los pagos en BTC recibidos en bc1qep3ntxf6lz037ny04706u88jsl364p0ny4776s
-const codigosValidos = {
-    "OP80-3MESES-99": { duracion: 90 * 24 * 60 * 60 * 1000, usado: false },
-    "OP80-6MESES-16": { duracion: 180 * 24 * 60 * 60 * 1000, usado: false },
-    "OP80-12MESES-30": { duracion: 365 * 24 * 60 * 60 * 1000, usado: false }
-};
+const registeredUsers = new Map();
+const activatedLicenses = new Set();
 
-// Registro de nuevos usuarios
-app.post('/api/registrar', (req, res) => {
+app.post('/api/register', (req, res) => {
     const { username, password } = req.body;
-    if (!username || !password) {
-        return res.status(400).json({ error: "Faltan datos de registro" });
-    }
-    if (baseDeDatosUsuarios[username]) {
-        return res.status(400).json({ error: "El usuario ya existe" });
-    }
-
-    baseDeDatosUsuarios[username] = {
-        password: password,
-        expiresAt: 0, // Sin tiempo hasta que canjeen un código
-        activo: false
-    };
-
-    res.json({ status: "success", message: "Usuario registrado con éxito. Inicia sesión para canjear tu código." });
+    if (!username || !password) return res.status(400).json({ error: "Missing required fields." });
+    if (registeredUsers.has(username)) return res.status(400).json({ error: "User already exists." });
+    
+    registeredUsers.set(username, password);
+    res.json({ success: true, message: "Account created successfully!" });
 });
 
-// Canje de código de activación (Enviado por po80payments@gmail.com)
-app.post('/api/canjear', (req, res) => {
-    const { username, password, codigo } = req.body;
-    const user = baseDeDatosUsuarios[username];
-
-    if (!user || user.password !== password) {
-        return res.status(401).json({ error: "Credenciales incorrectas" });
+app.post('/api/login', (req, res) => {
+    const { username, password } = req.body;
+    const storedPass = registeredUsers.get(username);
+    if (storedPass && storedPass === password) {
+        res.json({ success: true, message: "Logged in successfully." });
+    } else {
+        res.status(401).json({ error: "Incorrect username or password." });
     }
-
-    const licenciaInfo = codigosValidos[codigo];
-    if (!licenciaInfo || licenciaInfo.usado) {
-        return res.status(400).json({ error: "Código inválido o ya utilizado" });
-    }
-
-    // Activar tiempo de vida de la suscripción
-    licenciaInfo.usado = true;
-    user.expiresAt = Date.now() + licenciaInfo.duracion;
-    user.activo = true;
-
-    res.json({ 
-        status: "success", 
-        message: "¡Licencia activada con éxito!", 
-        expiresAt: user.expiresAt 
-    });
 });
 
-// Endpoint para que el APK de Android reporte ubicación y doble IP en tiempo real
-app.post('/api/reportar', (req, res) => {
-    const { username, password, lat, lng, ipTelefono, ipIntruso } = req.body;
-    const user = baseDeDatosUsuarios[username];
-
-    if (!user || user.password !== password) {
-        return res.status(401).json({ error: "No autorizado" });
+app.post('/api/redeem', (req, res) => {
+    const { code } = req.body;
+    if (codigosValidos.has(code) && !activatedLicenses.has(code)) {
+        activatedLicenses.add(code);
+        codigosValidos.delete(code);
+        return res.json({ success: true, message: "License activated successfully! Real GPS enabled." });
     }
-
-    // Verificar si el tiempo de vida de la suscripción expiró
-    if (Date.now() > user.expiresAt || !user.activo) {
-        return res.status(403).json({ error: "Suscripción expirada. Transmisión bloqueada." });
-    }
-
-    // Emitir datos en vivo al panel específico del usuario
-    io.emit(`actualizar_mapa_${username}`, {
-        lat,
-        lng,
-        ipTelefono: ipTelefono || "Desconocida",
-        ipIntruso: ipIntruso || null,
-        timestamp: Date.now()
-    });
-
-    res.json({ status: "success" });
+    res.status(400).json({ success: false, error: "Invalid, expired, or already used code." });
 });
 
 io.on('connection', (socket) => {
-    console.log('Cliente conectado al sistema en vivo de op80.com');
+    const clientIp = socket.handshake.headers['x-forwarded-for'] || socket.handshake.address || "Unknown";
+    socket.emit('set-ip', { ip: clientIp.replace('::ffff:', '') });
+
+    socket.on('gps-coordinates', (data) => {
+        io.emit('live-location-update', data);
+    });
+
+    socket.on('disconnect', () => {});
 });
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-    console.log(`op80.com operando en el puerto ${PORT}`);
+    console.log(`🚀 Centinela Server active on port ${PORT}`);
 });
