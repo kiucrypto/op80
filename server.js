@@ -1,5 +1,5 @@
 const express = require('express');
-const http = http = require('http');
+const http = require('http');
 const { Server } = require('socket.io');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
@@ -11,7 +11,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Middleware robusto para archivos estáticos
+// Servir archivos estáticos de forma segura
 app.use(express.static(path.join(__dirname)));
 
 const server = http.createServer(app);
@@ -21,7 +21,7 @@ const io = new Server(server, {
     pingInterval: 25000
 });
 
-// Configuración de transporte de correo (Nodemailer)
+// Configuración de transporte de correo
 const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST || 'smtp.gmail.com',
     port: 587,
@@ -32,20 +32,19 @@ const transporter = nodemailer.createTransport({
     }
 });
 
-// Bases de datos en memoria optimizadas y con persistencia de ciclo de vida
+// Bases de datos en memoria optimizadas
 const usersDB = new Map();
-// Cuenta por defecto preconfigurada con acceso total
 usersDB.set('usu6y', { password: 'password123', license: 'OP80-PRO-9999', hasAccess: true });
 
 const activeLicenses = new Set(['OP80-PRO-9999']);
-const activeSales = new Map(); // Previene totalmente el fallo de "Sale not found"
+const activeSales = new Map();
 const bannedDevices = new Set();
 
 io.on('connection', (socket) => {
     const remoteIp = socket.handshake.headers['x-forwarded-for'] || socket.conn.remoteAddress;
 
     socket.on('security-breach-detected', (data) => {
-        const deviceId = data.deviceId || 'unknown';
+        const deviceId = data?.deviceId || 'unknown';
         bannedDevices.add(deviceId);
         socket.emit('device-permanently-locked', { message: 'Security breach detected. Device locked.' });
     });
@@ -139,7 +138,7 @@ io.on('connection', (socket) => {
     });
 });
 
-// Ruta raíz explícita con reenvío de seguridad a index.html
+// Ruta comodín para asegurar el enrutamiento correcto del SPA
 app.get('*', (req, res) => {
     const indexPath = path.join(__dirname, 'index.html');
     res.sendFile(indexPath, (err) => {
