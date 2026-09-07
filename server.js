@@ -11,8 +11,8 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Servir archivos estáticos de forma segura
-app.use(express.static(path.join(__dirname)));
+// Corrección aplicada: Ruta estática absoluta limpia
+app.use(express.static(__dirname));
 
 const server = http.createServer(app);
 const io = new Server(server, { 
@@ -138,11 +138,11 @@ io.on('connection', (socket) => {
     });
 });
 
-// Ruta comodín para asegurar el enrutamiento correcto del SPA
+// Corrección aplicada: Envío seguro y directo del index.html con root
 app.get('*', (req, res) => {
-    const indexPath = path.join(__dirname, 'index.html');
-    res.sendFile(indexPath, (err) => {
+    res.sendFile('index.html', { root: __dirname }, (err) => {
         if (err) {
+            console.error("Error sirviendo index.html:", err);
             res.status(500).send('op80.com Gateway Error: index.html missing from root directory.');
         }
     });
