@@ -22,7 +22,7 @@
 
         .container {
             width: 95%; max-width: 600px; margin: 40px auto;
-            background: rgba(10, 15, 26, 0.78); backdrop-filter: blur(16px);
+            background: rgba(10, 15, 26, 0.82); backdrop-filter: blur(16px);
             border: 1px solid rgba(0, 255, 204, 0.4); border-radius: 20px; padding: 30px;
             box-shadow: 0 15px 40px rgba(0, 0, 0, 0.9), inset 0 0 20px rgba(0, 255, 204, 0.05);
             text-align: center; z-index: 1;
@@ -43,7 +43,7 @@
         }
 
         .card {
-            background: rgba(20, 28, 45, 0.8); border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(20, 28, 45, 0.85); border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 14px; padding: 20px; margin-bottom: 20px; text-align: left;
             box-shadow: 0 8px 20px rgba(0,0,0,0.5);
         }
@@ -90,21 +90,20 @@
         }
         @keyframes spin { 100% { transform: rotate(360deg); } }
 
-        /* HIGH-CONVERSION BENEFIT CARDS */
+        /* DETAILED BENEFITS SECTION */
         .info-container {
-            margin-top: 30px; border-top: 1px dashed rgba(0, 255, 204, 0.3); padding-top: 25px;
+            margin-top: 30px; border-top: 1px dashed rgba(0, 255, 204, 0.3); padding-top: 25px; text-align: left;
         }
         .info-grid {
             display: grid; grid-template-columns: 1fr; gap: 15px; margin-top: 15px;
         }
-        @media(min-width: 480px) { .info-grid { grid-template-columns: 1fr 1fr; } }
+        @media(min-width: 480px) { .info-grid { grid-template-columns: 1fr; } }
         .info-item {
-            background: rgba(10, 15, 25, 0.7); padding: 16px; border-radius: 10px;
-            border: 1px solid rgba(0, 255, 204, 0.2); text-align: left;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            background: rgba(10, 15, 25, 0.75); padding: 16px; border-radius: 10px;
+            border: 1px solid rgba(0, 255, 204, 0.2); box-shadow: 0 4px 15px rgba(0,0,0,0.4);
         }
         .info-item h4 { margin: 0 0 8px 0; color: #00ffcc; font-size: 0.95rem; display: flex; align-items: center; gap: 8px; }
-        .info-item p { margin: 0; font-size: 0.79rem; color: #c0cbdc; line-height: 1.5; }
+        .info-item p { margin: 0; font-size: 0.81rem; color: #c0cbdc; line-height: 1.5; }
         .highlight-text { color: #ff3366; font-weight: bold; }
     </style>
 </head>
@@ -114,9 +113,9 @@
     <canvas id="neonCanvas"></canvas>
 
     <div class="container">
-        <div class="welcome-badge">🌐 Centinela Network Active</div>
+        <div class="welcome-badge">🌐 Centinela Cloud System 24/7</div>
         <h1>op80.com</h1>
-        <p style="color: #c0cbdc; margin-bottom: 20px;">Advanced Real-time Satellite & Anti-Theft Telemetry.</p>
+        <p style="color: #c0cbdc; margin-bottom: 20px;">Real-time Satellite Geolocation and IP Monitoring Platform.</p>
 
         <!-- AUTH SECTION -->
         <div id="authContainer" class="section-box active">
@@ -126,33 +125,33 @@
             </div>
 
             <div class="card">
-                <h3 id="authTitleText">🔐 System Access</h3>
+                <h3 id="authTitleText">🔐 Log In to System</h3>
                 <input type="text" id="authUser" class="input-field" placeholder="Username">
                 <input type="password" id="authPass" class="input-field" placeholder="Password">
-                <button onclick="executeAuth()" id="btnAuthAction" class="btn-action btn-redeem">Enter System</button>
+                <button onclick="executeAuth()" id="btnAuthAction" class="btn-action btn-redeem">Access System</button>
             </div>
 
-            <!-- HIGH-IMPACT BENEFITS & USE CASES (COMMERCIAL COPY) -->
+            <!-- DETAILED BENEFITS & COMMERCIAL USE CASES -->
             <div class="info-container">
-                <h3 style="color: #fff; font-size: 1.15rem; margin: 0 0 5px 0;">🛡️ Why Choose op80.com?</h3>
-                <p style="font-size: 0.8rem; color: #8a99ad; margin-bottom: 15px;">Real solutions for absolute control, protection and peace of mind.</p>
+                <h3 style="color: #fff; font-size: 1.15rem; margin: 0 0 5px 0;">🛡️ System Features & Benefits</h3>
+                <p style="font-size: 0.8rem; color: #8a99ad; margin-bottom: 15px;">Complete protection, tracking and tracking control.</p>
                 
                 <div class="info-grid">
                     <div class="info-item">
                         <h4>💔 Suspicious Infidelity?</h4>
-                        <p>Is your partner or spouse <span class="highlight-text">turning off their phone, ignoring calls, or hiding their location</span>? Uncover the truth instantly with <strong>op80.com</strong>'s live satellite radar.</p>
+                        <p>Is your partner or spouse <span class="highlight-text">turning off their phone, ignoring calls, or hiding their location</span>? Uncover the truth instantly with <strong>op80.com</strong>.</p>
                     </div>
                     <div class="info-item">
                         <h4>👨‍👩‍👧 Family Security & Control</h4>
-                        <p>Worried about your children or family members wandering off and disabling their location? Maintain absolute control and track their exact position 24/7 with zero margins for error.</p>
+                        <p>Worried that your family or children might wander off and disable their location? Take control and track their exact position with <strong>op80.com</strong>.</p>
                     </div>
                     <div class="info-item">
                         <h4>🚨 Anti-Theft & Maximum Safety</h4>
-                        <p>Got robbed? Locate your phone using high-security GPS, IP tracking, and real-time coordinates. <span class="highlight-text">Dual Access (Web & App)</span>: no one will be able to wipe your data or use the stolen device.</p>
+                        <p>Got robbed and want to know where your phone is? High-security GPS and IP tracking with real-time coordinates. <span class="highlight-text">Dual access (phone and web)</span>: they won't be able to delete your data or use the device.</p>
                     </div>
                     <div class="info-item">
                         <h4>⚡ Emergency Breach Detection</h4>
-                        <p>Our advanced system instantly detects when someone attempts to manipulate or reset the device, triggering an <span style="color:#00ffcc">automatic security alert</span> that streams the exact location straight to your PC or laptop.</p>
+                        <p>The system detects instantly if someone attempts to manipulate or reset the device, triggering security protocols and sending the live system location directly to your PC or laptop.</p>
                     </div>
                 </div>
             </div>
@@ -162,14 +161,14 @@
         <div id="dashboardContainer" class="section-box">
             
             <div class="promo-banner" style="border-left-color: #00ffcc; background: linear-gradient(135deg, rgba(0, 255, 204, 0.15), rgba(0, 85, 255, 0.1));">
-                ℹ️ <strong>STATUS:</strong> Awaiting Single-Use Activation Code. Enter your 1-time code below to unlock full tracking.
+                ⚠️ <strong>LEGAL NOTICE:</strong> All sales are final. NO REFUNDS under any circumstances once license codes are activated.
             </div>
 
             <div class="card">
                 <h3>⚡ Redeem 1-Time Access Code</h3>
-                <p style="font-size: 0.8rem; color: #a0aec0; margin-top: 0;">Enter your unique code to permanently unlock this session.</p>
+                <p style="font-size: 0.8rem; color: #a0aec0; margin-top: 0;">Enter your unique code provided by our team after Bitcoin verification.</p>
                 <input type="text" id="codeInput" class="input-field" placeholder="Ex: OP80-XXXX-XXXX">
-                <button onclick="redeemLicense()" class="btn-action btn-redeem">🔓 Authenticate & Unlock Radar</button>
+                <button onclick="redeemLicense()" class="btn-action btn-redeem">🔓 Activate Real GPS Tracking</button>
             </div>
 
             <!-- LIVE TRACKING UI (HIDDEN UNTIL CODE IS REDEEMED) -->
@@ -190,7 +189,7 @@
             <!-- APK DOWNLOAD -->
             <div class="card">
                 <h3>📱 Download Centinela APK</h3>
-                <p style="font-size: 0.8rem; color: #a0aec0; margin-top: 0;">Install the companion app on Android for persistent background location broadcasting and anti-theft shield.</p>
+                <p style="font-size: 0.8rem; color: #a0aec0; margin-top: 0;">Install the companion app on Android for persistent background telemetry.</p>
                 <button onclick="downloadApk()" class="btn-action btn-apk">📥 Download APK Payload</button>
             </div>
 
@@ -203,7 +202,7 @@
                 <input type="text" value="bc1qep3ntxf6lz037ny04706u88jsl364p0ny4776s" class="input-field" id="btcWallet" readonly style="color:#00ffcc; font-family: monospace; text-align: center;">
                 <button onclick="copyWallet()" class="btn-action" style="background: rgba(255,255,255,0.1); border: 1px solid #00ffcc; color:#00ffcc;">📋 Copy BTC Wallet</button>
                 
-                <a href="mailto:po80payments@gmail.com?subject=BTC%20Payment%20Receipt&body=Hello,%20attached%20is%20my%20screenshot.%20Please%20send%20my%201-time%20code." class="btn-action btn-gmail" style="margin-top: 15px;">✉️ Send Receipt to Gmail</a>
+                <a href="mailto:po80payments@gmail.com?subject=BTC%20Payment%20Receipt&body=Hello,%20attached%20is%20my%20screenshot.%20Please%20send%20my%201-time%20code." class="btn-action btn-gmail" style="margin-top: 15px;">✉️ Send Screenshot (po80payments@gmail.com)</a>
             </div>
 
             <button onclick="logout()" class="btn-action" style="background: rgba(255,51,102,0.15); color: #ff3366; border: 1px solid rgba(255,51,102,0.4);">🔒 Disconnect</button>
@@ -280,8 +279,8 @@
             isRegisterMode = (mode === 'register');
             document.getElementById('tabLogin').classList.toggle('active', !isRegisterMode);
             document.getElementById('tabRegister').classList.toggle('active', isRegisterMode);
-            document.getElementById('authTitleText').innerText = isRegisterMode ? "📝 Register Node" : "🔐 System Access";
-            document.getElementById('btnAuthAction').innerText = isRegisterMode ? "Register" : "Enter System";
+            document.getElementById('authTitleText.innerText = isRegisterMode ? "📝 Register Node" : "🔐 Log In to System";
+            document.getElementById('btnAuthAction').innerText = isRegisterMode ? "Register" : "Access System";
         }
 
         async function executeAuth() {
