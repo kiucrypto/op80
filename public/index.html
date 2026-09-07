@@ -11,10 +11,10 @@
             z-index: -1; pointer-events: none; background: #000000;
         }
         body {
-            margin: 0; padding: 0; background: transparent; color: #fff;
+            margin: 0; padding: 0; background: #000; color: #fff;
             font-family: 'Segoe UI', system-ui, sans-serif;
             display: flex; flex-direction: column; align-items: center; min-height: 100vh;
-            box-sizing: border-box; padding-bottom: 40px;
+            box-sizing: border-box; padding-bottom: 40px; overflow-x: hidden;
         }
         .box {
             width: 90%; max-width: 480px; background: rgba(5, 5, 8, 0.96);
@@ -41,9 +41,7 @@
             margin-top: 10px; text-transform: uppercase; letter-spacing: 0.5px; transition: 0.2s;
         }
         .btn:hover { filter: brightness(1.2); transform: translateY(-1px); }
-        .btn-alt {
-            background: transparent; color: #ff003c; border: 1px solid #ff003c; margin-top: 8px;
-        }
+        .btn-alt { background: transparent; color: #ff003c; border: 1px solid #ff003c; margin-top: 8px; }
         .btn-alt:hover { background: rgba(255, 0, 60, 0.1); }
         .plan-select {
             width: 100%; padding: 12px; margin: 8px 0; background: #020305;
@@ -54,7 +52,6 @@
         .error-msg { color: #ff4757; font-size: 0.85rem; margin-top: 8px; }
         .success-msg { color: #2ed573; font-size: 0.85rem; margin-top: 8px; }
 
-        /* Estilo para la sección informativa al final */
         .info-container {
             width: 90%; max-width: 480px; background: rgba(3, 3, 5, 0.9);
             border: 1px solid rgba(255, 0, 60, 0.2); border-radius: 14px;
@@ -75,25 +72,21 @@
 </head>
 <body>
 
-    <!-- Pantalla de Bloqueo por Seguridad -->
     <div id="lockdownScreen" class="hidden">
         <div style="font-size: 4rem; margin-bottom: 10px;">🚨</div>
         <h1 style="color: #ff003c; font-size: 2.2rem; text-shadow: 0 0 20px rgba(255,0,60,0.8);">DEVICE LOCKED</h1>
         <p style="color: #fff; max-width: 400px; font-size: 0.95rem; line-height: 1.5; margin-bottom: 20px;">
-            Security violation or tampering attempt detected. Under hardware protection policies, this phone/device has been permanently locked.
+            Security violation or tampering attempt detected. Under hardware protection policies, this device has been permanently locked.
         </p>
         <div class="badge" style="background: rgba(255,0,60,0.2); border-color: #ff003c; color: #ff003c;">ERROR CODE: SEC-BREACH-0x80</div>
     </div>
 
-    <!-- Fondo Matrix Rojo -->
     <canvas id="matrixCanvas"></canvas>
 
-    <!-- Caja Principal de Interacción -->
     <div class="box" id="mainBox">
         <div class="badge">🛡️ op80.com Secure Gateway</div>
         <h1>op80.com</h1>
 
-        <!-- VISTA 1: AUTENTICACIÓN -->
         <div id="authView">
             <p style="color: #94a3b8; font-size: 0.88rem; margin-bottom: 15px;">Encrypted connection active. Log in or register.</p>
             
@@ -106,11 +99,10 @@
             <div id="authMsg"></div>
         </div>
 
-        <!-- VISTA 2: PAGO BTC -->
         <div id="paymentView" class="hidden">
             <p style="color: #94a3b8; font-size: 0.88rem; margin-bottom: 10px;">User: <span id="paymentUser" style="color:#ff003c; font-weight:bold;"></span>. Complete payment to unlock clearance.</p>
 
-            <div class="section-title">Select Access Plan</div>
+            <div class="section-title">Select Access Plan & Pricing</div>
             <select id="planChoice" class="plan-select">
                 <option value="Standard 24/7 Access - $25">Standard 24/7 Access - $25 BTC</option>
                 <option value="Lifetime Pro License - $60">Lifetime Pro License - $60 BTC</option>
@@ -127,7 +119,6 @@
             <button onclick="logout()" class="btn btn-alt" style="margin-top: 15px;">Log Out</button>
         </div>
 
-        <!-- VISTA 3: SISTEMA PRINCIPAL -->
         <div id="systemView" class="hidden">
             <div class="badge" style="background: rgba(46,213,115,0.15); color: #2ed573; border-color: rgba(46,213,115,0.4);">⚡ SECURE SYSTEM ACTIVE</div>
             <p style="color: #94a3b8; font-size: 0.88rem; margin-bottom: 10px;">Authorized User: <span id="systemUser" style="color:#2ed573; font-weight:bold;"></span></p>
@@ -160,7 +151,6 @@
     </div>
 
     <script>
-        // --- MOTOR DE SEGURIDAD Y BLOQUEO DE DISPOSITIVO ---
         const socket = io();
         let deviceId = localStorage.getItem('op80_device_id');
         if (!deviceId) {
@@ -174,9 +164,12 @@
 
         function triggerDeviceLockout() {
             localStorage.setItem('op80_device_locked', 'true');
-            document.getElementById('mainBox').classList.add('hidden');
-            document.getElementById('infoContainer').classList.add('hidden');
-            document.getElementById('lockdownScreen').classList.remove('hidden');
+            const mainBox = document.getElementById('mainBox');
+            const infoContainer = document.getElementById('infoContainer');
+            const lockdownScreen = document.getElementById('lockdownScreen');
+            if (mainBox) mainBox.classList.add('hidden');
+            if (infoContainer) infoContainer.classList.add('hidden');
+            if (lockdownScreen) lockdownScreen.classList.remove('hidden');
             socket.emit('security-breach-detected', { deviceId: deviceId });
         }
 
@@ -202,7 +195,6 @@
             triggerDeviceLockout();
         });
 
-        // --- ANIMACIÓN MATRIX ROJO ---
         const canvas = document.getElementById('matrixCanvas');
         const ctx = canvas.getContext('2d');
 
@@ -237,7 +229,6 @@
         }
         setInterval(drawMatrix, 35);
 
-        // --- LÓGICA DE USUARIO Y PAGO ---
         let currentUsername = '';
 
         function handleRegister() {
