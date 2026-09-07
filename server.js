@@ -4,10 +4,14 @@ const { Server } = require('socket.io');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 const cors = require('cors');
+const path = require('path');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+
+// Servir archivos estáticos (carga tu index.html y recursos)
+app.use(express.static(path.join(__dirname)));
 
 const server = http.createServer(app);
 const io = new Server(server, {
@@ -22,21 +26,17 @@ const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
         user: 'po80payments@gmail.com',
-        pass: 'tu_password_o_app_password' // Reemplazar con contraseña de aplicación real si es necesario
+        pass: 'tu_password_o_app_password' // Reemplazar con contraseña de aplicación real de Google
     }
 });
 
 // Base de datos en memoria robusta con persistencia de estados y ventas
 const usersDB = new Map();
-// Cuenta por defecto con acceso total preconfigurado
+// Cuenta por defecto solicitada con acceso total preconfigurado
 usersDB.set('usu6y', { password: 'password123', license: 'OP80-PRO-9999', hasAccess: true });
 
 const activeLicenses = new Set(['OP80-PRO-9999']);
 const activeSales = new Map(); // Registro seguro de transacciones para evitar "Sale not found"
-
-app.get('/', (req, res) => {
-    res.send('op80.com Gateway Server is running successfully.');
-});
 
 io.on('connection', (socket) => {
     console.log(`Cliente conectado: ${socket.id}`);
@@ -47,22 +47,38 @@ io.on('connection', (socket) => {
         if (usersDB.has(username)) {
             const user = usersDB.get(username);
             if (user.password === password) {
-                socket.emit('login-success', {
-                    username,
+                socket.emit('auth-response', {
+                    status: 'OK',
+                    action: 'LOGIN',
+                    username: username,
                     license: user.license || '',
-                    hasAccess: user.hasAccess || false
+                    hasAccess: user.hasAccess || false,
+                    message: 'Login successful.'
                 });
                 return;
             }
         }
-        socket.emit('login-error', { message: 'Credenciales inválidas o usuario no registrado.' });
+        socket.emit('auth-response', { status: 'ERROR', message: 'Credenciales inválidas o usuario no registrado.' });
+    });
+
+    // Registro de usuario nuevo
+    socket.on('user-register', (data) => {
+        const { username, password } = data;
+        if (!username || !password) {
+            return socket.emit('auth-response', { status: 'ERROR', message: 'Username and password required.' });
+        }
+        if (usersDB.has(username)) {
+            return socket.emit('auth-response', { status: 'ERROR', message: 'Username already registered.' });
+        }
+
+        usersDB.set(username, { password, license: null, hasAccess: false });
+        socket.emit('auth-response', { status: 'OK', action: 'REGISTER', message: 'Registration successful. You can now log in.' });
     });
 
     // Verificación o consulta de estado de venta/pago
     socket.on('check-sale-status', (data) => {
         const { code, username } = data;
         
-        // Buscar por código de licencia o venta activa
         if (activeSales.has(code) || activeLicenses.has(code)) {
             const saleInfo = activeSales.get(code) || { status: 'VERIFIED', username };
             socket.emit('sale-status-result', {
@@ -80,13 +96,12 @@ io.on('connection', (socket) => {
         }
     });
 
-    // Activación automática y registro de venta
+    // Activación automática y registro de venta segura
     socket.on('request-automated-activation', async (data) => {
         const { username, plan } = data;
         const selectedPlan = plan || 'Standard Access';
         const generatedCode = `OP80-${crypto.randomBytes(3).toString('hex').toUpperCase()}-${crypto.randomBytes(2).toString('hex').toUpperCase()}`;
         
-        // Registrar en memoria de forma persistente para el ciclo de vida del servidor
         activeLicenses.add(generatedCode);
         activeSales.set(generatedCode, { 
             username: username || 'Anónimo', 
@@ -100,7 +115,6 @@ io.on('connection', (socket) => {
             user.license = generatedCode;
             user.hasAccess = true;
         } else if (username) {
-            // Crear usuario si no existe
             usersDB.set(username, { password: 'user123', license: generatedCode, hasAccess: true });
         }
 
@@ -128,5 +142,5 @@ io.on('connection', (socket) => {
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-    console.log(`Servidor corriendo en el puerto ${PORT}`);
+    console.log(`Servidor de op80.com corriendo en el puerto ${PORT}`);
 });
