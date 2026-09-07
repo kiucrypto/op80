@@ -1,5 +1,5 @@
 const express = require('express');
-const http = http = require('http');
+const http = require('http');
 const { Server } = require('socket.io');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
@@ -11,9 +11,8 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Directorio raíz absoluto forzado para evitar errores de ruta en móviles
-const ROOT_DIR = __dirname;
-console.log("-> Directorio de trabajo actual:", ROOT_DIR);
+const ROOT_DIR = path.resolve(__dirname);
+console.log(`[op80.com] Servidor apuntando al directorio raíz: ${ROOT_DIR}`);
 
 app.use(express.static(ROOT_DIR));
 
@@ -139,13 +138,12 @@ io.on('connection', (socket) => {
     });
 });
 
-// Ruta SPA blindada con ruta absoluta explícita
 app.get('*', (req, res) => {
-    const indexPath = path.resolve(ROOT_DIR, 'index.html');
-    res.sendFile(indexPath, (err) => {
+    const targetFile = path.join(ROOT_DIR, 'index.html');
+    res.sendFile(targetFile, (err) => {
         if (err) {
-            console.error("Error crítico sirviendo index.html en ruta:", indexPath);
-            res.status(500).send(`op80.com Gateway Error: index.html missing from root directory (${ROOT_DIR}).`);
+            console.error("Error crítico: index.html no encontrado en:", targetFile);
+            res.status(500).send('op80.com Gateway Error: index.html missing from root directory.');
         }
     });
 });
