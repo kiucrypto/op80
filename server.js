@@ -1,121 +1,381 @@
-const express = require('express');
-const http = require('http');
-const { Server } = require('socket.io');
-const path = require('path');
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>op80.com - Real Satellite Tracking & IP Monitoring Centinela System</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <style>
+        /* Fixed canvas background for golden neon moving points */
+        #neonCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            pointer-events: none;
+            background-color: #050505;
+        }
 
-const app = express();
-const server = http.createServer(app);
-const io = new Server(server);
+        body {
+            margin: 0; padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: transparent; /* Dynamic background handled by the neon canvas */
+            color: #ffffff; display: flex; flex-direction: column; align-items: center; min-height: 100vh;
+            overflow-x: hidden;
+        }
 
-app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
+        .container {
+            width: 90%; max-width: 520px; margin: 30px auto;
+            background: rgba(16, 22, 36, 0.92); backdrop-filter: blur(14px);
+            border: 1px solid rgba(0, 255, 204, 0.3); border-radius: 20px; padding: 25px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.8), 0 0 25px rgba(0, 255, 204, 0.15);
+            text-align: center;
+            z-index: 1;
+        }
 
-// Database of valid license codes (6 and 12 months)
-const codigosValidos = new Set([
-    // 6 Months
-    "OP80-7392", "OP80-1846", "OP80-9051", "OP80-3278", "OP80-6410", "OP80-2589", "OP80-8734", "OP80-4167", "OP80-0925", "OP80-5683",
-    "OP80-2947", "OP80-8163", "OP80-4702", "OP80-9538", "OP80-1264", "OP80-6875", "OP80-3409", "OP80-7926", "OP80-0518", "OP80-8641",
-    "OP80-2357", "OP80-9084", "OP80-5726", "OP80-1439", "OP80-6812", "OP80-3975", "OP80-8240", "OP80-4608", "OP80-7153", "OP80-2864",
-    "OP80-9347", "OP80-1582", "OP80-6079", "OP80-3726", "OP80-8495", "OP80-2148", "OP80-7630", "OP80-4957", "OP80-0286", "OP80-5814",
-    "OP80-9462", "OP80-1375", "OP80-8049", "OP80-3691", "OP80-6728", "OP80-2450", "OP80-9186", "OP80-4537", "OP80-7964", "OP80-0823",
-    "OP80-6385", "OP80-3197", "OP80-8750", "OP80-5246", "OP80-1608", "OP80-9473", "OP80-2861", "OP80-7039", "OP80-4512", "OP80-8296",
-    "OP80-3740", "OP80-6158", "OP80-0927", "OP80-5483", "OP80-7619", "OP80-2035", "OP80-9864", "OP80-4178", "OP80-6350", "OP80-1729",
-    "OP80-8046", "OP80-3592", "OP80-7281", "OP80-0465", "OP80-5937", "OP80-8610", "OP80-2349", "OP80-9172", "OP80-4806", "OP80-7564",
-    "OP80-1287", "OP80-6943", "OP80-3705", "OP80-8426", "OP80-5198", "OP80-0631", "OP80-9275", "OP80-4160", "OP80-7832", "OP80-2496",
-    "OP80-6054", "OP80-8713", "OP80-3548", "OP80-9620", "OP80-1473", "OP80-5389", "OP80-7206", "OP80-3941", "OP80-8167", "OP80-0524",
-    "OP80-6790", "OP80-4385", "OP80-9251", "OP80-2678", "OP80-7436", "OP80-1089", "OP80-5942", "OP80-8360", "OP80-4715", "OP80-6893",
-    "OP80-3208", "OP80-9574", "OP80-2146", "OP80-7659", "OP80-4832", "OP80-0397", "OP80-6284", "OP80-8516", "OP80-3769", "OP80-9420",
-    "OP80-1578", "OP80-6043", "OP80-7935", "OP80-2681", "OP80-5167", "OP80-8304", "OP80-4926", "OP80-0753", "OP80-9671", "OP80-3418",
-    "OP80-7850", "OP80-6297", "OP80-1046", "OP80-5738", "OP80-8962", "OP80-2374", "OP80-6819", "OP80-4503", "OP80-9187", "OP80-3265",
-    "OP80-7641", "OP80-0894", "OP80-5326", "OP80-8470", "OP80-2953", "OP80-6108", "OP80-9735", "OP80-1842", "OP80-7269", "OP80-4057",
-    "OP80-8593", "OP80-3410", "OP80-6924", "OP80-0578", "OP80-9341", "OP80-2186", "OP80-7652", "OP80-4839", "OP80-1207", "OP80-5984",
-    "OP80-8376", "OP80-2649", "OP80-7105", "OP80-9468", "OP80-3721", "OP80-6857", "OP80-0492", "OP80-8136", "OP80-2574", "OP80-9048",
-    "OP80-6315", "OP80-4782", "OP80-7961", "OP80-1639", "OP80-5427", "OP80-8804", "OP80-3156", "OP80-7298", "OP80-0647", "OP80-9583",
-    "OP80-4019", "OP80-6735", "OP80-2468", "OP80-8174", "OP80-5390", "OP80-9826", "OP80-1745", "OP80-7062", "OP80-3589", "OP80-6241",
-    "OP80-8957", "OP80-2306", "OP80-7614", "OP80-4830", "OP80-0975", "OP80-6548", "OP80-8291", "OP80-3164", "OP80-7408", "OP80-9527",
-    "OP80-1853", "OP80-6071", "OP80-3948", "OP80-8716", "OP80-2460", "OP80-5189", "OP80-9364", "OP80-7032", "OP80-1498", "OP80-6825",
-    "OP80-4571", "OP80-8206", "OP80-3749", "OP80-9653", "OP80-2180", "OP80-5967", "OP80-8432", "OP80-1604", "OP80-7295", "OP80-4801",
-    "OP80-0572", "OP80-9168", "OP80-6347", "OP80-2859", "OP80-7513", "OP80-4086", "OP80-8724", "OP80-1937", "OP80-5460", "OP80-9682",
-    "OP80-3274", "OP80-6149", "OP80-8590", "OP80-2408", "OP80-7931", "OP80-4657", "OP80-0186", "OP80-6820", "OP80-9375", "OP80-1542",
-    "OP80-7068", "OP80-3984", "OP80-8217", "OP80-5740", "OP80-2695", "OP80-9436", "OP80-3178", "OP80-6504", "OP80-7861", "OP80-0924",
-    "OP80-5387", "OP80-8649", "OP80-4251", "OP80-7196", "OP80-3508", "OP80-9814", "OP80-1763", "OP80-6048", "OP80-8371", "OP80-4920",
-    "OP80-2586", "OP80-9154", "OP80-6738", "OP80-3416", "OP80-7802", "OP80-5297", "OP80-0468", "OP80-8965", "OP80-2140", "OP80-7583",
-    "OP80-4309", "OP80-9674", "OP80-1857", "OP80-6230", "OP80-7496", "OP80-3028", "OP80-8519", "OP80-4763", "OP80-9180", "OP80-2645",
-    "OP80-5907", "OP80-7361", "OP80-0489", "OP80-6827", "OP80-4053", "OP80-8739", "OP80-1268", "OP80-9470", "OP80-5314", "OP80-7692",
-    "OP80-2841", "OP80-6150", "OP80-8396", "OP80-1734", "OP80-9581", "OP80-4267", "OP80-7025", "OP80-3946", "OP80-5810", "OP80-8673",
-    "OP80-2094", "OP80-7438", "OP80-3169", "OP80-6905", "OP80-8247", "OP80-0579", "OP80-9368", "OP80-4516",
-    // 12 Months
-    "61360609-OP80", "2014539-OP80", "373499-OP80", "5278234-OP80", "165835-OP80", "11864-OP80", "6548405-OP80", "2226-OP80", "52434-OP80", "65074-OP80",
-    "26082664-OP80", "4175056-OP80", "38336-OP80", "642645-OP80", "3391-OP80", "86274-OP80", "0248378-OP80", "55002421-OP80", "46998187-OP80", "63567-OP80",
-    "3421167-OP80", "1327-OP80", "6016602-OP80", "47760-OP80", "78489-OP80", "83048953-OP80", "06777-OP80", "1842-OP80", "7953-OP80", "39742-OP80",
-    "11551328-OP80", "1606936-OP80", "13137661-OP80", "12691-OP80", "2963044-OP80", "81335-OP80", "2763246-OP80", "10939-OP80", "991142-OP80", "0586271-OP80",
-    "5230-OP80", "764250-OP80", "362321-OP80", "09402-OP80", "798155-OP80", "5342885-OP80", "67940834-OP80", "83499475-OP80", "20108035-OP80", "03563048-OP80",
-    "2685495-OP80", "4720-OP80", "165896-OP80", "11802958-OP80", "669864-OP80", "05536150-OP80", "114705-OP80", "392762-OP80", "85816-OP80", "88237-OP80",
-    "72539823-OP80", "74032650-OP80", "4250347-OP80", "987929-OP80", "7656-OP80", "180035-OP80", "72852-OP80", "51102-OP80", "71139933-OP80", "7171003-OP80",
-    "768230-OP80", "36519-OP80", "00483-OP80", "2818186-OP80", "69725-OP80", "784901-OP80", "87807222-OP80", "5070332-OP80", "9251-OP80", "9022-OP80",
-    "5820-OP80", "48939-OP80", "50135429-OP80", "357162-OP80", "07148173-OP80", "22225660-OP80", "245704-OP80", "31904-OP80", "2554221-OP80", "34526-OP80",
-    "4491088-OP80", "1357-OP80", "42982988-OP80", "17381-OP80", "9743675-OP80", "6905-OP80", "59758-OP80", "51849-OP80", "9926-OP80", "2709-OP80",
-    "8764695-OP80", "7093082-OP80", "987774-OP80", "67274714-OP80", "20092355-OP80", "719584-OP80", "8602-OP80", "10905542-OP80", "463190-OP80", "27921489-OP80",
-    "9486112-OP80", "002463-OP80", "69427107-OP80", "26108823-OP80", "76771-OP80", "3339500-OP80", "77322-OP80", "44565-OP80", "031487-OP80", "72371519-OP80",
-    "78032-OP80", "59549-OP80", "505294-OP80", "72548-OP80", "4662-OP80", "1312455-OP80", "81732-OP80", "23462423-OP80", "7089-OP80", "9405-OP80",
-    "456330-OP80", "964671-OP80", "72707-OP80", "96766709-OP80", "0550590-OP80", "4797906-OP80", "3025-OP80", "659233-OP80", "3953857-OP80", "54183335-OP80",
-    "4647-OP80", "3471646-OP80", "14199-OP80", "07493376-OP80", "64525277-OP80", "25914-OP80", "034279-OP80", "41643-OP80", "40169972-OP80", "8696346-OP80",
-    "82042496-OP80", "86376812-OP80", "4575767-OP80", "5269-OP80", "97308-OP80", "68378582-OP80", "9325-OP80", "3322593-OP80", "21654-OP80", "719623-OP80",
-    "283271-OP80", "2965846-OP80", "63618-OP80", "708584-OP80", "414898-OP80", "268219-OP80", "0745-OP80", "92469670-OP80", "897338-OP80", "535593-OP80",
-    "8001-OP80", "85406709-OP80", "4176930-OP80", "3758-OP80", "861305-OP80", "88460-OP80", "90065-OP80", "3299-OP80", "58795-OP80", "815920-OP80",
-    "0178-OP80", "13796050-OP80", "84153-OP80", "72277-OP80", "393728-OP80", "59787313-OP80", "55058278-OP80", "99741-OP80", "4070245-OP80", "2063088-OP80",
-    "3620-OP80", "05706980-OP80", "27797-OP80", "3515658-OP80", "6700-OP80", "54133-OP80", "1175055-OP80", "815910-OP80", "661485-OP80", "5331-OP80",
-    "9729489-OP80", "1860599-OP80", "9491781-OP80", "4627126-OP80", "8422-OP80", "16906057-OP80", "6712-OP80", "49519043-OP80", "21872-OP80", "2090-OP80",
-    "2646198-OP80", "2068998-OP80", "772864-OP80", "9846-OP80", "58348042-OP80", "8586-OP80", "7749205-OP80", "65062471-OP80", "3421-OP80", "8203538-OP80",
-    "9782-OP80", "84645-OP80", "32261-OP80", "803535-OP80", "89842-OP80", "34281869-OP80", "7872182-OP80", "98758905-OP80", "17979-OP80", "516839-OP80",
-    "5522-OP80", "10658354-OP80", "7514031-OP80", "4527-OP80", "1213-OP80", "268247-OP80", "7515343-OP80", "30985-OP80", "0008-OP80", "42655719-OP80",
-    "48229021-OP80", "3592111-OP80", "283553-OP80", "297262-OP80", "75484040-OP80", "86836966-OP80", "84932-OP80", "564414-OP80"
-]);
+        h1 { font-size: 2.3rem; color: #00ffcc; margin: 10px 0; text-shadow: 0 0 15px rgba(0, 255, 204, 0.5); }
 
-const registeredUsers = new Map();
-const activatedLicenses = new Set();
+        .welcome-badge {
+            background: linear-gradient(90deg, #00ffcc, #00bfff); color: #050b14;
+            padding: 5px 14px; border-radius: 20px; font-weight: bold; font-size: 0.8rem;
+            display: inline-block; margin-bottom: 10px; text-transform: uppercase;
+        }
 
-app.post('/api/register', (req, res) => {
-    const { username, password } = req.body;
-    if (!username || !password) return res.status(400).json({ error: "Missing required fields." });
-    if (registeredUsers.has(username)) return res.status(400).json({ error: "User already exists." });
-    
-    registeredUsers.set(username, password);
-    res.json({ success: true, message: "Account created successfully!" });
-});
+        .hero-desc { font-size: 0.9rem; color: #c0cbdc; line-height: 1.4; margin-bottom: 15px; }
 
-app.post('/api/login', (req, res) => {
-    const { username, password } = req.body;
-    const storedPass = registeredUsers.get(username);
-    if (storedPass && storedPass === password) {
-        res.json({ success: true, message: "Logged in successfully." });
-    } else {
-        res.status(401).json({ error: "Incorrect username or password." });
-    }
-});
+        .promo-banner {
+            background: linear-gradient(135deg, rgba(255, 51, 102, 0.15), rgba(0, 255, 204, 0.1));
+            border-left: 4px solid #ff3366; padding: 10px; border-radius: 8px;
+            font-size: 0.82rem; color: #e2e8f0; margin-bottom: 15px; text-align: left;
+        }
 
-app.post('/api/redeem', (req, res) => {
-    const { code } = req.body;
-    if (codigosValidos.has(code) && !activatedLicenses.has(code)) {
-        activatedLicenses.add(code);
-        codigosValidos.delete(code);
-        return res.json({ success: true, message: "License activated successfully! Real GPS enabled." });
-    }
-    res.status(400).json({ success: false, error: "Invalid, expired, or already used code." });
-});
+        .card {
+            background: rgba(26, 34, 52, 0.7); border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px; padding: 15px; margin-bottom: 15px; text-align: left;
+        }
 
-io.on('connection', (socket) => {
-    const clientIp = socket.handshake.headers['x-forwarded-for'] || socket.handshake.address || "Unknown";
-    socket.emit('set-ip', { ip: clientIp.replace('::ffff:', '') });
+        .card h3 { color: #00ffcc; font-size: 1rem; margin-top: 0; margin-bottom: 10px; }
 
-    socket.on('gps-coordinates', (data) => {
-        io.emit('live-location-update', data);
-    });
+        .price-box {
+            background: rgba(10, 15, 25, 0.6); padding: 8px 12px; border-radius: 8px;
+            margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center;
+            font-size: 0.85rem; border: 1px solid rgba(255, 255, 255, 0.04);
+        }
+        .price-box span { color: #00ffcc; font-weight: bold; }
 
-    socket.on('disconnect', () => {});
-});
+        .crypto-box {
+            background: #050b14; padding: 8px; border-radius: 8px; font-family: monospace;
+            font-size: 0.75rem; color: #00ffcc; word-break: break-all;
+            border: 1px dashed rgba(0, 255, 204, 0.4); margin: 8px 0;
+        }
 
-const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-    console.log(`🚀 Centinela Server active on port ${PORT}`);
-});
+        .input-field {
+            width: 100%; padding: 10px; margin-bottom: 8px; background: rgba(5, 11, 20, 0.9);
+            border: 1px solid rgba(0, 255, 204, 0.3); border-radius: 8px; color: #fff;
+            box-sizing: border-box; font-size: 0.85rem;
+        }
+        .input-field:focus { outline: none; border-color: #00ffcc; box-shadow: 0 0 8px rgba(0, 255, 204, 0.4); }
+
+        .btn-action {
+            display: block; width: 100%; padding: 10px; margin-top: 8px; border-radius: 8px;
+            font-weight: bold; text-decoration: none; text-align: center; cursor: pointer; border: none; font-size: 0.9rem;
+        }
+
+        .btn-gmail { background: linear-gradient(135deg, #ea4335, #c5221f); color: white; box-shadow: 0 4px 15px rgba(234, 67, 53, 0.4); }
+        .btn-copy { background: rgba(255, 255, 255, 0.1); color: #00ffcc; border: 1px solid rgba(0, 255, 204, 0.3); }
+        .btn-redeem { background: linear-gradient(135deg, #00ffcc, #00bfff); color: #050b14; box-shadow: 0 4px 15px rgba(0, 255, 204, 0.4); }
+
+        .btn-tab {
+            background: rgba(255, 255, 255, 0.05); color: #a0aec0; border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; margin-right: 5px;
+        }
+        .btn-tab.active { background: #00ffcc; color: #050b14; font-weight: bold; }
+
+        .terms-box {
+            font-size: 0.72rem; color: #8a99ad; text-align: justify; margin-top: 15px; line-height: 1.3;
+            border-top: 1px solid rgba(255,255,255,0.08); padding-top: 10px;
+        }
+
+        .section-box { display: none; }
+        .section-box.active { display: block; }
+
+        .radar-view {
+            width: 100%; height: 160px; background: #03070c; border: 1px solid rgba(0, 255, 204, 0.3);
+            border-radius: 8px; margin-top: 10px; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center;
+        }
+        .radar-sweep {
+            position: absolute; width: 180px; height: 180px; border-radius: 50%;
+            background: conic-gradient(from 0deg at 50% 50%, rgba(0, 255, 204, 0) 0deg, rgba(0, 255, 204, 0.3) 360deg);
+            animation: spin 4s linear infinite;
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        .target-dot {
+            position: absolute; width: 9px; height: 9px; background: #ff3366; border-radius: 50%;
+            box-shadow: 0 0 12px #ff3366; animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(2.4); opacity: 0.4; } 100% { transform: scale(1); opacity: 1; } }
+    </style>
+</head>
+<body>
+
+    <!-- Canvas for the golden neon moving background -->
+    <canvas id="neonCanvas"></canvas>
+
+    <div class="container">
+        <div class="welcome-badge">Centinela Cloud System 24/7</div>
+        <h1>op80.com</h1>
+        <p class="hero-desc">Real-time Satellite Geolocation and IP Monitoring Platform.</p>
+
+        <div class="promo-banner">
+            ⚠️ <strong>LEGAL NOTICE:</strong> All sales are final. <strong>NO REFUNDS</strong> under any circumstances once license codes are activated.
+        </div>
+
+        <!-- AUTH SECTION (LOGIN / REGISTER) -->
+        <div id="authContainer" class="section-box active">
+            <div style="margin-bottom: 12px; text-align: left;">
+                <button onclick="switchAuthTab('login')" id="tabLogin" class="btn-tab active">Log In</button>
+                <button onclick="switchAuthTab('register')" id="tabRegister" class="btn-tab">Register</button>
+            </div>
+
+            <div class="card">
+                <h3 id="authTitleText">🔐 Log In to System</h3>
+                <input type="text" id="authUser" class="input-field" placeholder="Username">
+                <input type="password" id="authPass" class="input-field" placeholder="Password">
+                <button onclick="executeAuth()" id="btnAuthAction" class="btn-action btn-redeem">Access System</button>
+            </div>
+        </div>
+
+        <!-- DASHBOARD AND MAIN CONTROL SECTION -->
+        <div id="dashboardContainer" class="section-box">
+            
+            <div class="card">
+                <h3>⚡ Redeem Subscription Code</h3>
+                <p style="font-size: 0.8rem; color: #a0aec0; margin-top: 0;">Enter your unique code to activate real-time GPS tracking.</p>
+                <input type="text" id="codeInput" class="input-field" placeholder="Ex: OP80-7392 or 61360609-OP80">
+                <button onclick="redeemLicense()" class="btn-action btn-redeem">🔓 Activate Real GPS Tracking</button>
+            </div>
+
+            <!-- REAL GPS & LIVE IP DASHBOARD -->
+            <div id="gpsDashboard" style="display: none;" class="card">
+                <h4 style="color: #00ffcc; margin: 0 0 8px 0;">🟢 Live Real GPS Telemetry</h4>
+                <p style="font-size: 0.78rem; color: #e2e8f0; margin: 0 0 8px 0; line-height: 1.4;">
+                    <strong>Device IP Address:</strong> <span id="ipText" style="color: #00ffcc; font-family: monospace;">Retrieving...</span><br>
+                    <strong>Real Latitude / Longitude:</strong> <span id="coordsText" style="color: #00ffcc; font-family: monospace;">Waiting for GPS permission...</span><br>
+                    <strong>Satellite Accuracy:</strong> <span id="accuracyText" style="color: #00ffcc; font-family: monospace;">-</span><br>
+                    <strong>Status:</strong> <span id="statusGps" style="color: #00ffcc; font-family: monospace;">Real-time monitoring active</span>
+                </p>
+                <div class="radar-view">
+                    <div class="radar-sweep"></div>
+                    <div class="target-dot" style="top: 50%; left: 50%;"></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>💎 Buy License with Bitcoin (24/7)</h3>
+                <div class="price-box"><span>6 Months:</span> $13.99 USD</div>
+                <div class="price-box"><span>12 Months:</span> $25.99 USD</div>
+                <p style="font-size: 0.8rem; margin-top: 10px; margin-bottom: 3px; color: #a0aec0;">Bitcoin Wallet (BTC):</p>
+                <div class="crypto-box">bc1qep3ntxf6lz037ny04706u88jsl364p0ny4776s</div>
+                <button onclick="copyWallet()" class="btn-action btn-copy" style="font-size: 0.8rem; padding: 6px;">📋 Copy Wallet</button>
+                <p style="font-size: 0.75rem; color: #a0aec0; margin: 8px 0 4px 0;">Send payment screenshot to our Gmail. Our team will send your code 24/7:</p>
+                <a href="mailto:po80payments@gmail.com?subject=BTC%20Payment%20Receipt%20op80.com&body=Attached%20is%20my%20Bitcoin%20payment%20screenshot%20to%20receive%20my%20code." class="btn-action btn-gmail">✉️ Send Screenshot (po80payments@gmail.com)</a>
+            </div>
+
+            <button onclick="logout()" class="btn-action" style="background: rgba(255,51,102,0.2); color: #ff3366; border: 1px solid rgba(255,51,102,0.4); margin-top: 10px;">🔒 Log Out</button>
+        </div>
+
+        <div class="terms-box">
+            <strong>Terms & Conditions:</strong> Unauthorized use is strictly prohibited. Strict <strong>NO REFUNDS</strong> policy after purchasing and activating license codes.
+        </div>
+    </div>
+
+    <script>
+        /* GOLDEN NEON BACKGROUND ANIMATION SCRIPT */
+        const canvas = document.getElementById('neonCanvas');
+        const ctx = canvas.getContext('2d');
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        const particleCount = 150;
+        const particles = [];
+
+        class Particle {
+            constructor() {
+                this.reset();
+            }
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.vx = (Math.random() - 0.5) * 0.6;
+                this.vy = (Math.random() - 0.5) * 0.6;
+                this.radius = Math.random() * 2.5 + 1;
+                this.alpha = Math.random();
+                this.maxAlpha = Math.random() * 0.8 + 0.2;
+                this.fadeSpeed = Math.random() * 0.015 + 0.005;
+                this.fadingIn = Math.random() > 0.5;
+            }
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                if (this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) {
+                    this.reset();
+                }
+                if (this.fadingIn) {
+                    this.alpha += this.fadeSpeed;
+                    if (this.alpha >= this.maxAlpha) {
+                        this.alpha = this.maxAlpha;
+                        this.fadingIn = false;
+                    }
+                } else {
+                    this.alpha -= this.fadeSpeed;
+                    if (this.alpha <= 0.05) {
+                        this.alpha = 0.05;
+                        this.fadingIn = true;
+                    }
+                }
+            }
+            draw() {
+                ctx.save();
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255, 215, 0, ${this.alpha})`;
+                ctx.shadowColor = 'rgba(255, 180, 0, 0.9)';
+                ctx.shadowBlur = 12;
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        for (let i = 0; i < particleCount; i++) {
+            particles.push(new Particle());
+        }
+
+        function animateNeonBackground() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(particle => {
+                particle.update();
+                particle.draw();
+            });
+            requestAnimationFrame(animateNeonBackground);
+        }
+        animateNeonBackground();
+
+
+        /* ORIGINAL SYSTEM LOGIC */
+        const socket = io();
+        let isRegisterMode = false;
+
+        function switchAuthTab(mode) {
+            isRegisterMode = (mode === 'register');
+            document.getElementById('tabLogin').classList.toggle('active', !isRegisterMode);
+            document.getElementById('tabRegister').classList.toggle('active', isRegisterMode);
+            document.getElementById('authTitleText').innerText = isRegisterMode ? "📝 User Registration" : "🔐 Log In to System";
+            document.getElementById('btnAuthAction').innerText = isRegisterMode ? "Register" : "Access System";
+        }
+
+        async function executeAuth() {
+            const username = document.getElementById('authUser').value.trim();
+            const password = document.getElementById('authPass').value.trim();
+            if (!username || !password) { alert("Please complete all fields."); return; }
+
+            const endpoint = isRegisterMode ? '/api/register' : '/api/login';
+            try {
+                const res = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    alert(data.message);
+                    if (!isRegisterMode) {
+                        document.getElementById('authContainer').classList.remove('active');
+                        document.getElementById('dashboardContainer').classList.add('active');
+                    } else {
+                        switchAuthTab('login');
+                    }
+                } else {
+                    alert(data.error);
+                }
+            } catch (err) {
+                alert("Server connection error.");
+            }
+        }
+
+        async function redeemLicense() {
+            const code = document.getElementById('codeInput').value.trim();
+            if (!code) { alert("Please enter a code."); return; }
+
+            try {
+                const res = await fetch('/api/redeem', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ code })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    alert(data.message);
+                    document.getElementById('gpsDashboard').style.display = 'block';
+                    startRealGpsTracking();
+                } else {
+                    alert(data.error);
+                }
+            } catch (err) {
+                alert("Error validating code.");
+            }
+        }
+
+        function startRealGpsTracking() {
+            if ("geolocation" in navigator) {
+                navigator.geolocation.watchPosition(
+                    (position) => {
+                        const lat = position.coords.latitude;
+                        const lng = position.coords.longitude;
+                        const accuracy = position.coords.accuracy;
+
+                        document.getElementById('coordsText').innerText = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+                        document.getElementById('accuracyText').innerText = `${accuracy} meters`;
+
+                        socket.emit('gps-coordinates', { lat, lng, accuracy, timestamp: new Date().toLocaleTimeString() });
+                    },
+                    (error) => {
+                        alert("GPS Error: You must allow real location access in your browser to activate monitoring.");
+                        document.getElementById('statusGps').innerText = "Location permission denied by user.";
+                    },
+                    { enableHighAccuracy: true, maximumAge: 0, timeout: 10000 }
+                );
+            } else {
+                alert("Your device or browser does not support real satellite geolocation.");
+            }
+        }
+
+        socket.on('set-ip', (data) => {
+            document.getElementById('ipText').innerText = data.ip;
+        });
+
+        socket.on('live-location-update', (data) => {
+            document.getElementById('coordsText').innerText = `${data.lat}, ${data.lng}`;
+            document.getElementById('accuracyText').innerText = `${data.accuracy} meters`;
+        });
+
+        function copyWallet() {
+            navigator.clipboard.writeText("bc1qep3ntxf6lz037ny04706u88jsl364p0ny4776s");
+            alert("Bitcoin wallet copied successfully!");
+        }
+
+        function logout() {
+            document.getElementById('dashboardContainer').classList.remove('active');
+            document.getElementById('authContainer').classList.add('active');
+            document.getElementById('gpsDashboard').style.display = 'none';
+            document.getElementById('authPass').value = '';
+        }
+    </script>
+</body>
+</html>
