@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>op80.com - Panel de Monitoreo en Vivo</title>
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: #131c2e;
+            --accent-color: #00ffcc;
+            --danger-color: #ef4444;
+            --text-color: #ffffff;
+            --text-muted: #94a3b8;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #1e293b;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+        .status-badge {
+            background: rgba(0, 255, 204, 0.1);
+            color: var(--accent-color);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            border: 1px solid var(--accent-color);
+        }
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+        }
+        @media (max-width: 768px) {
+            .dashboard-grid { grid-template-columns: 1fr; }
+        }
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid #1e293b;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        }
+        #map {
+            width: 100%;
+            height: 400px;
+            border-radius: 8px;
+            background: #0f172a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+        }
+        .alert-box {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid var(--danger-color);
+            color: #f87171;
+            padding: 12px;
+            border-radius: 6px;
+            margin-top: 15px;
+            font-size: 0.9rem;
+        }
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 0.95rem;
+        }
+        .info-row span { color: var(--text-muted); }
+    </style>
+    <!-- Socket.io para comunicación en tiempo real -->
+    <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+
+    <header>
+        <div class="logo-area">
+            <span>🐦‍⬛ op80.com</span>
+        </div>
+        <div class="status-badge" id="systemStatus">SISTEMA VIVO: ACTIVO</div>
+    </header>
+
+    <div class="dashboard-grid">
+        <!-- Mapa en Tiempo Real -->
+        <div class="card">
+            <h2>🗺️ Ubicación GPS en Vivo</h2>
+            <div id="map">
+                <p>Esperando conexión del dispositivo APK...</p>
+            </div>
+        </div>
+
+        <!-- Panel de Control, Tiempos y Doble IP -->
+        <div class="card">
+            <h2>🛡️ Estado de Seguridad</h2>
+            <div class="info-row">
+                <span>Estado de Licencia:</span>
+                <strong style="color: var(--accent-color);">Protección Total</strong>
+            </div>
+            <div class="info-row">
+                <span>Tiempo Restante:</span>
+                <strong id="countdown">Calculando...</strong>
+            </div>
+            <hr style="border-color: #1e293b; margin: 15px 0;">
+            <h3>⚠️ Alertas de Intrusión (Doble IP)</h3>
+            <div class="alert-box" id="ipAlerts">
+                Sin amenazas detectadas. El sistema opera con normalidad.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const socket = io();
+
+        // Simulación de recepción de datos en tiempo real desde el servidor de Render
+        // Aquí se conectará la información enviada por tu APK de raíz
+        socket.on('actualizar_mapa_usuario1', function(data) {
+            console.log("Nueva ubicación recibida:", data);
+            document.getElementById('map').innerHTML = `
+                <div style="text-align: center; color: #00ffcc;">
+                    <p><strong>Lat:</strong> ${data.lat} | <strong>Lng:</strong> ${data.lng}</p>
+                    <p>Última actualización en vivo: ${new Date(data.timestamp).toLocaleTimeString()}</p>
+                </div>
+            `;
+            
+            // Si el APK detecta un intento de conexión a PC, muestra la doble IP
+            if(data.ipIntruso) {
+                document.getElementById('ipAlerts').innerHTML = `
+                    <strong>¡ALERTA DE DOBLE IP DETECTADA!</strong><br>
+                    IP del Teléfono: ${data.ipTelefono}<br>
+                    IP del Intruso/PC: ${data.ipIntruso}
+                `;
+            }
+        });
+    </script>
+</body>
+</html>
+
