@@ -21,7 +21,7 @@
         body {
             margin: 0; padding: 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: transparent; /* Dynamic background handled by the neon canvas */
+            background: transparent;
             color: #ffffff; display: flex; flex-direction: column; align-items: center; min-height: 100vh;
             overflow-x: hidden;
         }
@@ -86,6 +86,7 @@
         .btn-gmail { background: linear-gradient(135deg, #ea4335, #c5221f); color: white; box-shadow: 0 4px 15px rgba(234, 67, 53, 0.4); }
         .btn-copy { background: rgba(255, 255, 255, 0.1); color: #00ffcc; border: 1px solid rgba(0, 255, 204, 0.3); }
         .btn-redeem { background: linear-gradient(135deg, #00ffcc, #00bfff); color: #050b14; box-shadow: 0 4px 15px rgba(0, 255, 204, 0.4); }
+        .btn-apk { background: linear-gradient(135deg, #8a2be2, #4b0082); color: white; box-shadow: 0 4px 15px rgba(138, 43, 226, 0.4); }
 
         .btn-tab {
             background: rgba(255, 255, 255, 0.05); color: #a0aec0; border: 1px solid rgba(255, 255, 255, 0.1);
@@ -127,6 +128,11 @@
         <div class="welcome-badge">Centinela Cloud System 24/7</div>
         <h1>op80.com</h1>
         <p class="hero-desc">Real-time Satellite Geolocation and IP Monitoring Platform.</p>
+
+        <!-- System Overview Description -->
+        <div class="promo-banner" style="border-left-color: #00ffcc; background: linear-gradient(135deg, rgba(0, 255, 204, 0.15), rgba(0, 191, 255, 0.1));">
+            ℹ️ <strong>SYSTEM OVERVIEW:</strong> Advanced military-grade infrastructure providing continuous high-precision satellite telemetry, live IP tracking, and secure node routing.
+        </div>
 
         <div class="promo-banner">
             ⚠️ <strong>LEGAL NOTICE:</strong> All sales are final. <strong>NO REFUNDS</strong> under any circumstances once license codes are activated.
@@ -170,6 +176,13 @@
                     <div class="radar-sweep"></div>
                     <div class="target-dot" style="top: 50%; left: 50%;"></div>
                 </div>
+            </div>
+
+            <!-- ANDROID APP DOWNLOAD SECTION -->
+            <div class="card">
+                <h3>📱 Mobile Tracking Client</h3>
+                <p style="font-size: 0.8rem; color: #a0aec0; margin-top: 0;">Download the official Centinela system application for direct background telemetry on Android devices.</p>
+                <button onclick="downloadApk()" class="btn-action btn-apk">📥 Download Centinela Tracker APK</button>
             </div>
 
             <div class="card">
@@ -268,7 +281,7 @@
         animateNeonBackground();
 
 
-        /* ORIGINAL SYSTEM LOGIC */
+        /* ORIGINAL SYSTEM & REAL-TIME LOGIC */
         const socket = io();
         let isRegisterMode = false;
 
@@ -368,6 +381,11 @@
         function copyWallet() {
             navigator.clipboard.writeText("bc1qep3ntxf6lz037ny04706u88jsl364p0ny4776s");
             alert("Bitcoin wallet copied successfully!");
+        }
+
+        function downloadApk() {
+            // Triggers direct download for the backend compiled Android APK route
+            window.location.href = '/download/centinela-tracker.apk';
         }
 
         function logout() {
