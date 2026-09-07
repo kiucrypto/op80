@@ -1,7 +1,7 @@
 {
-  "name": "op80-centinela-cloud",
+  "name": "op80-security monitoring against theft or loss 24/7 -cloud",
   "version": "2.2.0",
-  "description": "Centinela System op80.com - Real Tracking & BTC Payments",
+  "description": "System op80.com - Real Tracking & BTC Payments",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
