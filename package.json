@@ -1,7 +1,7 @@
 {
-  "name": "op80",
-  "version": "1.0.0",
-  "description": "Plataforma de rastreo op80.com",
+  "name": "op80-centinela-cloud",
+  "version": "2.2.0",
+  "description": "Centinela System op80.com - Real Tracking & BTC Payments",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
@@ -11,4 +11,3 @@
     "socket.io": "^4.7.5"
   }
 }
-
