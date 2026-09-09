@@ -1,7 +1,7 @@
 {
-  "name": "op80-ultimate-production-system",
-  "version": "8.0.0",
-  "description": "op80.com Complete Secured Gateway & Core Operational System",
+  "name": "op80-ecosystem",
+  "version": "1.0.0",
+  "description": "Next-Gen Enterprise Ecosystem and Real-Time Communication",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
@@ -9,7 +9,7 @@
   "dependencies": {
     "express": "^4.19.2",
     "socket.io": "^4.7.5",
-    "nodemailer": "^6.9.13"
+    "sqlite3": "^5.1.7"
   },
   "engines": {
     "node": ">=18.x"
