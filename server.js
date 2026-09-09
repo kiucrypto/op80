@@ -250,7 +250,7 @@ app.get('/', (req, res) => {
     <canvas id="neon-canvas"></canvas>
 
     <div class="container" id="app">
-        <h1>OP80.com</h1>
+        <h1>op80.com</h1>
 
         <!-- AUTH SECTION -->
         <div id="auth-section">
@@ -365,7 +365,7 @@ app.get('/', (req, res) => {
     </div>
 
     <footer>
-        <p><b>OP80.com</b> | Enterprise Secure Ecosystem & Real-Time Communication</p>
+        <p><b>op80.com</b> | Enterprise Secure Ecosystem & Real-Time Communication</p>
         <p>Lead Architect & Founder: <span class="founder">Jhon Gonzales</span> (<span class="founder">Lenox JG</span>)</p>
     </footer>
 
@@ -527,21 +527,21 @@ app.get('/', (req, res) => {
         socket.on('cargar_buzon', (mails) => {
             const box = document.getElementById('buzon-contenido');
             if (mails && mails.length > 0) {
-                box.innerHTML = mails.map((m, index) => `
+                box.innerHTML = mails.map((m, index) => \`
                     <div style="border-bottom: 1px solid rgba(51,65,85,0.5); padding: 10px 0; display: flex; flex-direction: column; gap: 6px;">
                         <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px;">
                             <div>
-                                <b style="color: #f87171;">[${m.sender}]:</b> ${m.type === 'foto' ? '📷 [Photo Received]' : escapeHtml(m.content)} 
-                                <span style="font-size: 10px; color: #94a3b8;">(${m.timestamp})</span>
+                                <b style="color: #f87171;">[\${m.sender}]:</b> \${m.type === 'foto' ? '📷 [Photo Received]' : escapeHtml(m.content)} 
+                                <span style="font-size: 10px; color: #94a3b8;">(\${m.timestamp})</span>
                             </div>
-                            <button onclick="toggleReplyBox(` + index + `)" class="btn-action" style="padding: 6px 12px; font-size: 11px;">Reply</button>
+                            <button onclick="toggleReplyBox(\${index})" class="btn-action" style="padding: 6px 12px; font-size: 11px;">Reply</button>
                         </div>
-                        <div id="reply-box-` + index + `" class="hidden" style="display: flex; gap: 8px; margin-top: 6px;">
-                            <input type="text" id="reply-text-` + index + `" placeholder="Type reply..." style="font-size: 12px; padding: 10px;">
-                            <button onclick="enviarReply('` + m.sender + `', ` + index + `)" class="btn-action" style="background: #16a34a; padding: 10px 14px; font-size: 12px;">Send</button>
+                        <div id="reply-box-\${index}" class="hidden" style="display: flex; gap: 8px; margin-top: 6px;">
+                            <input type="text" id="reply-text-\${index}" placeholder="Type reply..." style="font-size: 12px; padding: 10px;">
+                            <button onclick="enviarReply('\${m.sender}', \${index})" class="btn-action" style="background: #16a34a; padding: 10px 14px; font-size: 12px;">Send</button>
                         </div>
                     </div>
-                `).join('');
+                \`).join('');
             } else {
                 box.innerHTML = 'No stored messages.';
             }
@@ -708,5 +708,5 @@ io.on('connection', (socket) => {
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-    console.log(`OP80.com running live on port ${PORT}`);
+    console.log(`op80.com running live on port ${PORT}`);
 });
