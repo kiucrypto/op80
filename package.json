@@ -1,14 +1,17 @@
 {
   "name": "op80",
   "version": "1.0.0",
-  "description": "OP80 Ecosystem",
+  "description": "OP80 Secure Ecosystem",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
   "dependencies": {
-    "express": "^4.18.2",
-    "sqlite3": "^5.1.7",
-    "socket.io": "^4.7.2"
+    "express": "^4.19.2",
+    "socket.io": "^4.7.5",
+    "sqlite3": "^5.1.7"
+  },
+  "engines": {
+    "node": ">=18.x"
   }
 }
