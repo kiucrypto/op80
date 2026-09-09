@@ -21,7 +21,7 @@ const db = new sqlite3.Database(dbPath, (err) => {
 
 db.serialize(() => {
     db.run(`CREATE TABLE IF NOT EXISTS users (
-        ux TEXT PRIMARY KEY,
+        op TEXT PRIMARY KEY,
         password TEXT NOT NULL,
         nickname TEXT NOT NULL,
         balance INTEGER DEFAULT 20,
@@ -46,15 +46,14 @@ db.serialize(() => {
         timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
     )`);
 
-    // Administrador principal (UX 0)
-    db.get(`SELECT * FROM users WHERE ux = '0'`, (err, row) => {
+    // Administrador principal (OP 0)
+    db.get(`SELECT * FROM users WHERE op = '0'`, (err, row) => {
         if (!row) {
-            db.run(`INSERT INTO users (ux, password, nickname, balance, ip) VALUES ('0', '197126', 'Founder (Jhon Gonzales)', 999999, 'admin_system')`);
+            db.run(`INSERT INTO users (op, password, nickname, balance, ip) VALUES ('0', '197126', 'Founder (Jhon Gonzales)', 999999, 'admin_system')`);
         }
     });
 });
 
-// Interfaz ultrasólida, estética ciber-red, efectos neón avanzados y adaptada a OP80.com
 app.get('/', (req, res) => {
     res.send(`<!DOCTYPE html>
 <html lang="en">
@@ -290,14 +289,14 @@ app.get('/', (req, res) => {
                 <!-- Sign In -->
                 <div class="auth-box">
                     <h2>🔐 Sign In</h2>
-                    <input type="tel" id="login-ux" placeholder="UX Number" inputmode="numeric" pattern="[0-9]*">
+                    <input type="tel" id="login-op" placeholder="OP Number" inputmode="numeric" pattern="[0-9]*">
                     <input type="password" id="login-pass" placeholder="Password">
                     <button onclick="intentarLogin()">Enter System</button>
                 </div>
                 <!-- Register -->
                 <div class="auth-box">
-                    <h2>🚀 Register (20 UX Bonus)</h2>
-                    <input type="tel" id="reg-ux" placeholder="Desired UX Number" inputmode="numeric" pattern="[0-9]*">
+                    <h2>🚀 Register (20 OP Bonus)</h2>
+                    <input type="tel" id="reg-op" placeholder="Desired OP Number" inputmode="numeric" pattern="[0-9]*">
                     <input type="password" id="reg-pass" placeholder="Password">
                     <input type="text" id="reg-nickname" placeholder="Visible Nickname">
                     <button onclick="intentarRegistro()" style="background: linear-gradient(135deg, #16a34a 0%, #14532d 100%); box-shadow: 0 6px 20px rgba(22, 163, 74, 0.45);">Create Account</button>
@@ -311,12 +310,12 @@ app.get('/', (req, res) => {
                 <p style="font-size: 12px; color: #94a3b8; margin-bottom: 10px;">Master the next-gen enterprise secure ecosystem with this quick reference:</p>
                 <div class="manual-grid">
                     <div class="manual-card">
-                        <strong>1. Account & UX Balance</strong>
-                        Registration instantly grants you a starter bonus of <b>20 UX</b>. Your UX number is your absolute identifier across the entire platform. Guard your credentials.
+                        <strong>1. Account & OP Balance</strong>
+                        Registration instantly grants you a starter bonus of <b>20 OP</b>. Your OP number is your absolute identifier across the entire platform. Guard your credentials.
                     </div>
                     <div class="manual-card">
                         <strong>2. Live Real-Time Chat</strong>
-                        Input the recipient's <b>UX Number</b>, type your encrypted text or attach a high-speed photo 📷, and hit send for instantaneous data delivery.
+                        Input the recipient's <b>OP Number</b>, type your encrypted text or attach a high-speed photo 📷, and hit send for instantaneous data delivery.
                     </div>
                     <div class="manual-card">
                         <strong>3. 24/7 Permanent Mailbox</strong>
@@ -324,7 +323,7 @@ app.get('/', (req, res) => {
                     </div>
                     <div class="manual-card">
                         <strong>4. Network Security & Sessions</strong>
-                        Active nodes consume bandwidth. Logging out or abandoning an active session applies a standard <b>3 UX</b> safeguard fee to maintain system resilience.
+                        Active nodes consume bandwidth. Logging out or abandoning an active session applies a standard <b>3 OP</b> safeguard fee to maintain system resilience.
                     </div>
                 </div>
             </div>
@@ -335,16 +334,16 @@ app.get('/', (req, res) => {
             <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(20, 29, 48, 0.85); padding: 14px 20px; border-radius: 14px; font-size: 13px; border: 1px solid rgba(239,68,68,0.2);">
                 <div>
                     <span id="user-info-text" style="font-weight: 800; color: #f87171;"></span> | 
-                    Balance: <span id="user-balance" style="color: #4ade80; font-weight: 800;">0</span> UX
+                    Balance: <span id="user-balance" style="color: #4ade80; font-weight: 800;">0</span> OP
                 </div>
                 <button onclick="cerrarSesionVoluntaria()" class="btn-action" style="background: #dc2626; box-shadow: none; padding: 8px 14px;">Sign Out</button>
             </div>
 
-            <!-- Admin Panel (UX 0) -->
+            <!-- Admin Panel (OP 0) -->
             <div id="admin-panel" class="hidden" style="background: rgba(202, 138, 4, 0.12); border: 1px solid rgba(202, 138, 4, 0.4); padding: 16px; border-radius: 14px;">
-                <h3 style="color: #facc15; margin-bottom: 10px; font-size: 14px; font-weight: 800;">⚡ Admin Control Center (UX 0)</h3>
+                <h3 style="color: #facc15; margin-bottom: 10px; font-size: 14px; font-weight: 800;">⚡ Admin Control Center (OP 0)</h3>
                 <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                    <input type="tel" id="admin-target-ux" placeholder="Target UX" style="flex: 1; font-size: 13px;" inputmode="numeric">
+                    <input type="tel" id="admin-target-op" placeholder="Target OP" style="flex: 1; font-size: 13px;" inputmode="numeric">
                     <input type="number" id="admin-amount" placeholder="Amount" style="flex: 1; font-size: 13px;">
                     <button onclick="enviarSaldoAdmin()" class="btn-action" style="background: #ca8a04; box-shadow: 0 4px 15px rgba(202,138,4,0.4);">Credit Balance</button>
                 </div>
@@ -354,7 +353,7 @@ app.get('/', (req, res) => {
             <!-- Real-Time Live Chat -->
             <div>
                 <h2>💬 Live Real-Time Chat</h2>
-                <input type="tel" id="chat-destinatario" placeholder="Recipient UX Number" style="margin-bottom: 10px; font-size: 13px;" inputmode="numeric">
+                <input type="tel" id="chat-destinatario" placeholder="Recipient OP Number" style="margin-bottom: 10px; font-size: 13px;" inputmode="numeric">
                 <div id="chat-mensajes" class="chat-container"></div>
                 <div style="display: flex; gap: 10px; align-items: center;">
                     <input type="text" id="chat-texto" placeholder="Type secure message..." style="flex: 1; font-size: 13px;" onkeydown="if(event.key==='Enter') enviarMensajeText()">
@@ -370,9 +369,9 @@ app.get('/', (req, res) => {
                 <div id="buzon-contenido" style="background: rgba(2, 6, 23, 0.98); padding: 14px; border-radius: 14px; min-height: 70px; font-size: 13px; color: #cbd5e1; max-height: 180px; overflow-y: auto; border: 1px solid rgba(51, 65, 85, 0.9);">No stored messages.</div>
             </div>
 
-            <!-- UX Launch Plans & Clear Wallet Info -->
+            <!-- OP Launch Plans & Clear Wallet Info -->
             <div class="wallet-section">
-                <h2>💎 UX Launch Plans & Payment Gateways</h2>
+                <h2>💎 OP Launch Plans & Payment Gateways</h2>
                 <p style="font-size: 12px; margin-bottom: 14px; color: #94a3b8; line-height: 1.6;">
                     Execute your secure payment to any verified address below, then forward your receipt confirmation to <b style="color: #f87171;">po80payments@gmail.com</b>
                 </p>
@@ -391,12 +390,12 @@ app.get('/', (req, res) => {
                 </div>
 
                 <ul style="font-size: 13px; list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; color: #e2e8f0; margin-top: 16px;">
-                    <li style="background: rgba(15,23,42,0.8); padding: 10px 14px; border-radius: 10px; border: 1px solid rgba(239,68,68,0.15);">🔹 1,200 UX - $6.99</li>
-                    <li style="background: rgba(15,23,42,0.8); padding: 10px 14px; border-radius: 10px; border: 1px solid rgba(239,68,68,0.15);">🔹 2,500 UX - $13.99</li>
-                    <li style="background: rgba(15,23,42,0.8); padding: 10px 14px; border-radius: 10px; border: 1px solid rgba(239,68,68,0.15);">🔹 5,000 UX - $25.99</li>
-                    <li style="background: rgba(15,23,42,0.8); padding: 10px 14px; border-radius: 10px; border: 1px solid rgba(239,68,68,0.15);">🔹 10,000 UX - $49.99</li>
-                    <li style="background: rgba(15,23,42,0.8); padding: 10px 14px; border-radius: 10px; border: 1px solid rgba(239,68,68,0.15);">🔹 50,000 UX - $199.99</li>
-                    <li style="background: rgba(15,23,42,0.8); padding: 10px 14px; border-radius: 10px; border: 1px solid rgba(239,68,68,0.15);">🔹 100,666 UX - $266.99</li>
+                    <li style="background: rgba(15,23,42,0.8); padding: 10px 14px; border-radius: 10px; border: 1px solid rgba(239,68,68,0.15);">🔹 1,200 OP - $6.99</li>
+                    <li style="background: rgba(15,23,42,0.8); padding: 10px 14px; border-radius: 10px; border: 1px solid rgba(239,68,68,0.15);">🔹 2,500 OP - $13.99</li>
+                    <li style="background: rgba(15,23,42,0.8); padding: 10px 14px; border-radius: 10px; border: 1px solid rgba(239,68,68,0.15);">🔹 5,000 OP - $25.99</li>
+                    <li style="background: rgba(15,23,42,0.8); padding: 10px 14px; border-radius: 10px; border: 1px solid rgba(239,68,68,0.15);">🔹 10,000 OP - $49.99</li>
+                    <li style="background: rgba(15,23,42,0.8); padding: 10px 14px; border-radius: 10px; border: 1px solid rgba(239,68,68,0.15);">🔹 50,000 OP - $199.99</li>
+                    <li style="background: rgba(15,23,42,0.8); padding: 10px 14px; border-radius: 10px; border: 1px solid rgba(239,68,68,0.15);">🔹 100,666 OP - $266.99</li>
                 </ul>
             </div>
         </div>
@@ -422,7 +421,7 @@ app.get('/', (req, res) => {
 
         const drops = [];
         const numDrops = 110; 
-        const chars = ['0', '1', '8', '0', '9', '2', '3', '7', '5', '4', '6', 'UX', 'OP', '80'];
+        const chars = ['0', '1', '8', '0', '9', '2', '3', '7', '5', '4', '6', 'OP', '80'];
         const neonColors = ['#ef4444', '#dc2626', '#f87171', '#fb7185', '#f43f5e', '#991b1b'];
 
         for (let i = 0; i < numDrops; i++) {
@@ -470,7 +469,7 @@ app.get('/', (req, res) => {
 
         function intentarRegistro() {
             socket.emit('registrar', {
-                ux: document.getElementById('reg-ux').value,
+                op: document.getElementById('reg-op').value,
                 password: document.getElementById('reg-pass').value,
                 nickname: document.getElementById('reg-nickname').value
             });
@@ -478,7 +477,7 @@ app.get('/', (req, res) => {
 
         function intentarLogin() {
             socket.emit('login', {
-                ux: document.getElementById('login-ux').value,
+                op: document.getElementById('login-op').value,
                 password: document.getElementById('login-pass').value
             });
         }
@@ -498,7 +497,7 @@ app.get('/', (req, res) => {
         socket.on('login_exitoso', (data) => {
             document.getElementById('auth-section').classList.add('hidden');
             document.getElementById('dashboard-section').classList.remove('hidden');
-            document.getElementById('user-info-text').innerText = data.nickname + " (UX: " + data.ux + ")";
+            document.getElementById('user-info-text').innerText = data.nickname + " (OP: " + data.op + ")";
             document.getElementById('user-balance').innerText = data.balance;
             if (data.isAdmin) document.getElementById('admin-panel').classList.remove('hidden');
         });
@@ -516,7 +515,7 @@ app.get('/', (req, res) => {
             const dest = document.getElementById('chat-destinatario').value;
             const texto = document.getElementById('chat-texto').value;
             if (!dest || !texto) return;
-            socket.emit('enviar_mensaje', { destinatarioUx: dest, contenido: texto, tipo: 'texto' });
+            socket.emit('enviar_mensaje', { destinatarioOp: dest, contenido: texto, tipo: 'texto' });
             document.getElementById('chat-texto').value = '';
         }
 
@@ -547,7 +546,7 @@ app.get('/', (req, res) => {
                     ctx.drawImage(img, 0, 0, width, height);
                     
                     const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.65);
-                    socket.emit('enviar_mensaje', { destinatarioUx: dest, contenido: compressedDataUrl, tipo: 'foto' });
+                    socket.emit('enviar_mensaje', { destinatarioOp: dest, contenido: compressedDataUrl, tipo: 'foto' });
                 };
                 img.src = e.target.result;
             };
@@ -572,21 +571,21 @@ app.get('/', (req, res) => {
         socket.on('cargar_buzon', (mails) => {
             const box = document.getElementById('buzon-contenido');
             if (mails && mails.length > 0) {
-                box.innerHTML = mails.map((m, index) => \`
+                box.innerHTML = mails.map((m, index) => `
                     <div style="border-bottom: 1px solid rgba(51,65,85,0.5); padding: 10px 0; display: flex; flex-direction: column; gap: 6px;">
                         <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px;">
                             <div>
-                                <b style="color: #f87171;">[\${m.sender}]:</b> \${m.type === 'foto' ? '📷 [Photo Received]' : escapeHtml(m.content)} 
-                                <span style="font-size: 10px; color: #94a3b8;">(\${m.timestamp})</span>
+                                <b style="color: #f87171;">[${m.sender}]:</b> ${m.type === 'foto' ? '📷 [Photo Received]' : escapeHtml(m.content)} 
+                                <span style="font-size: 10px; color: #94a3b8;">(${m.timestamp})</span>
                             </div>
-                            <button onclick="toggleReplyBox(\` + index + \`)" class="btn-action" style="padding: 6px 12px; font-size: 11px;">Reply</button>
+                            <button onclick="toggleReplyBox(` + index + `)" class="btn-action" style="padding: 6px 12px; font-size: 11px;">Reply</button>
                         </div>
-                        <div id="reply-box-\${index}" class="hidden" style="display: flex; gap: 8px; margin-top: 6px;">
-                            <input type="text" id="reply-text-\${index}" placeholder="Type reply..." style="font-size: 12px; padding: 10px;">
-                            <button onclick="enviarReply('\${m.sender}', \` + index + \`)" class="btn-action" style="background: #16a34a; padding: 10px 14px; font-size: 12px;">Send</button>
+                        <div id="reply-box-` + index + `" class="hidden" style="display: flex; gap: 8px; margin-top: 6px;">
+                            <input type="text" id="reply-text-` + index + `" placeholder="Type reply..." style="font-size: 12px; padding: 10px;">
+                            <button onclick="enviarReply('` + m.sender + `', ` + index + `)" class="btn-action" style="background: #16a34a; padding: 10px 14px; font-size: 12px;">Send</button>
                         </div>
                     </div>
-                \`).join('');
+                `).join('');
             } else {
                 box.innerHTML = 'No stored messages.';
             }
@@ -602,10 +601,10 @@ app.get('/', (req, res) => {
             }
         }
 
-        function enviarReply(destUx, index) {
+        function enviarReply(destOp, index) {
             const texto = document.getElementById('reply-text-' + index).value;
             if (!texto) return;
-            socket.emit('enviar_mensaje', { destinatarioUx: destUx, contenido: texto, tipo: 'texto' });
+            socket.emit('enviar_mensaje', { destinatarioOp: destOp, contenido: texto, tipo: 'texto' });
             document.getElementById('reply-text-' + index).value = '';
             document.getElementById('reply-box-' + index).classList.add('hidden');
         }
@@ -616,7 +615,7 @@ app.get('/', (req, res) => {
 
         function enviarSaldoAdmin() {
             socket.emit('admin_recargar', {
-                targetUx: document.getElementById('admin-target-ux').value,
+                targetOp: document.getElementById('admin-target-op').value,
                 cantidad: document.getElementById('admin-amount').value
             });
         }
@@ -629,49 +628,48 @@ app.get('/', (req, res) => {
 });
 
 const activeSessions = new Map();
-const pendingDisconnects = new Map(); // Control para evitar cobros al actualizar la página
+const pendingDisconnects = new Map();
 
 io.on('connection', (socket) => {
     const clientIp = socket.handshake.address;
 
     socket.on('registrar', (data) => {
         if (!data) return;
-        const { ux, password, nickname } = data;
-        if (!ux || !password || !nickname) return socket.emit('error_auth', 'All fields are required.');
-        if (ux.length < 1 || ux.length > 10) return socket.emit('error_auth', 'UX number must be between 1 and 10 digits.');
+        const { op, password, nickname } = data;
+        if (!op || !password || !nickname) return socket.emit('error_auth', 'All fields are required.');
+        if (op.length < 1 || op.length > 10) return socket.emit('error_auth', 'OP number must be between 1 and 10 digits.');
 
-        db.get(`SELECT * FROM users WHERE ux = ?`, [ux], (err, row) => {
-            if (row) return socket.emit('error_auth', 'This UX number is already registered.');
+        db.get(`SELECT * FROM users WHERE op = ?`, [op], (err, row) => {
+            if (row) return socket.emit('error_auth', 'This OP number is already registered.');
 
-            db.run(`INSERT INTO users (ux, password, nickname, balance, ip) VALUES (?, ?, ?, 20, ?)`, [ux, password, nickname, clientIp], (err) => {
+            db.run(`INSERT INTO users (op, password, nickname, balance, ip) VALUES (?, ?, ?, 20, ?)`, [op, password, nickname, clientIp], (err) => {
                 if (err) return socket.emit('error_auth', 'Database error during registration.');
-                socket.emit('exito_auth', 'Registration successful! 20 UX bonus credited.');
+                socket.emit('exito_auth', 'Registration successful! 20 OP bonus credited.');
             });
         });
     });
 
     socket.on('login', (data) => {
         if (!data) return;
-        const { ux, password } = data;
-        db.get(`SELECT * FROM users WHERE ux = ? AND password = ?`, [ux, password], (err, user) => {
-            if (!user) return socket.emit('error_auth', 'Incorrect UX or password.');
+        const { op, password } = data;
+        db.get(`SELECT * FROM users WHERE op = ? AND password = ?`, [op, password], (err, user) => {
+            if (!user) return socket.emit('error_auth', 'Incorrect OP or password.');
 
-            // Si el usuario ya tenía una desconexión pendiente (por refrescar), la cancelamos para que no cobre doble
-            if (pendingDisconnects.has(ux)) {
-                clearTimeout(pendingDisconnects.get(ux));
-                pendingDisconnects.delete(ux);
+            if (pendingDisconnects.has(op)) {
+                clearTimeout(pendingDisconnects.get(op));
+                pendingDisconnects.delete(op);
             }
 
-            activeSessions.set(socket.id, ux);
-            socket.ux = ux;
+            activeSessions.set(socket.id, op);
+            socket.op = op;
 
-            db.all(`SELECT * FROM mailbox WHERE recipient = ? ORDER BY id DESC`, [ux], (err, mailRows) => {
+            db.all(`SELECT * FROM mailbox WHERE recipient = ? ORDER BY id DESC`, [op], (err, mailRows) => {
                 socket.emit('cargar_buzon', mailRows || []);
             });
 
             const sessionTimer = setTimeout(() => {
-                db.run(`UPDATE users SET balance = MAX(0, balance - 3) WHERE ux = ?`, [ux], () => {
-                    socket.emit('sesion_expirada', 'Your security comes first: Session closed due to time limit (-3 UX).');
+                db.run(`UPDATE users SET balance = MAX(0, balance - 3) WHERE op = ?`, [op], () => {
+                    socket.emit('sesion_expirada', 'Your security comes first: Session closed due to time limit (-3 OP).');
                     socket.disconnect();
                 });
             }, 5 * 60 * 1000);
@@ -679,8 +677,8 @@ io.on('connection', (socket) => {
             socket.on('cerrar_sesion', () => {
                 clearTimeout(sessionTimer);
                 if (activeSessions.has(socket.id)) {
-                    db.run(`UPDATE users SET balance = MAX(0, balance - 3) WHERE ux = ?`, [ux], () => {
-                        console.log(`User ${ux} signed out: -3 UX applied.`);
+                    db.run(`UPDATE users SET balance = MAX(0, balance - 3) WHERE op = ?`, [op], () => {
+                        console.log(`User ${op} signed out: -3 OP applied.`);
                     });
                     activeSessions.delete(socket.id);
                 }
@@ -691,45 +689,44 @@ io.on('connection', (socket) => {
                 if (activeSessions.has(socket.id)) {
                     activeSessions.delete(socket.id);
                     
-                    // Margen de 3.5 segundos para evitar cobro al actualizar (F5)
                     const disconnectTimer = setTimeout(() => {
-                        db.run(`UPDATE users SET balance = MAX(0, balance - 3) WHERE ux = ?`, [ux], () => {
-                            console.log(`User ${ux} left/closed web: -3 UX applied.`);
+                        db.run(`UPDATE users SET balance = MAX(0, balance - 3) WHERE op = ?`, [op], () => {
+                            console.log(`User ${op} left/closed web: -3 OP applied.`);
                         });
-                        pendingDisconnects.delete(ux);
+                        pendingDisconnects.delete(op);
                     }, 3500);
 
-                    pendingDisconnects.set(ux, disconnectTimer);
+                    pendingDisconnects.set(op, disconnectTimer);
                 }
             });
 
             socket.emit('login_exitoso', {
-                ux: user.ux,
+                op: user.op,
                 nickname: user.nickname,
                 balance: user.balance,
-                isAdmin: (user.ux === '0' && password === '197126')
+                isAdmin: (user.op === '0' && password === '197126')
             });
         });
     });
 
     socket.on('enviar_mensaje', (data) => {
         if (!data) return;
-        const { destinatarioUx, contenido, tipo } = data;
-        const remitenteUx = socket.ux;
-        if (!remitenteUx) return;
+        const { destinatarioOp, contenido, tipo } = data;
+        const remitenteOp = socket.op;
+        if (!remitenteOp) return;
 
-        db.get(`SELECT * FROM users WHERE ux = ?`, [destinatarioUx], (err, targetUser) => {
+        db.get(`SELECT * FROM users WHERE op = ?`, [destinatarioOp], (err, targetUser) => {
             if (!targetUser) return;
 
-            db.run(`INSERT INTO messages (sender, recipient, content, type) VALUES (?, ?, ?, ?)`, [remitenteUx, destinatarioUx, contenido, tipo], function(err) {
+            db.run(`INSERT INTO messages (sender, recipient, content, type) VALUES (?, ?, ?, ?)`, [remitenteOp, destinatarioOp, contenido, tipo], function(err) {
                 if (err) return;
-                const msgData = { id: this.lastID, de: remitenteUx, para: destinatarioUx, contenido, tipo };
+                const msgData = { id: this.lastID, de: remitenteOp, para: destinatarioOp, contenido, tipo };
 
-                db.run(`INSERT INTO mailbox (sender, recipient, content, type) VALUES (?, ?, ?, ?)`, [remitenteUx, destinatarioUx, contenido, tipo], () => {
-                    for (let [sId, sUx] of activeSessions.entries()) {
-                        if (sUx === destinatarioUx) {
+                db.run(`INSERT INTO mailbox (sender, recipient, content, type) VALUES (?, ?, ?, ?)`, [remitenteOp, destinatarioOp, contenido, tipo], () => {
+                    for (let [sId, sOp] of activeSessions.entries()) {
+                        if (sOp === destinatarioOp) {
                             io.to(sId).emit('recibir_mensaje', msgData);
-                            db.all(`SELECT * FROM mailbox WHERE recipient = ? ORDER BY id DESC`, [destinatarioUx], (err, mailRows) => {
+                            db.all(`SELECT * FROM mailbox WHERE recipient = ? ORDER BY id DESC`, [destinatarioOp], (err, mailRows) => {
                                 io.to(sId).emit('cargar_buzon', mailRows || []);
                             });
                         }
@@ -741,20 +738,20 @@ io.on('connection', (socket) => {
     });
 
     socket.on('admin_recargar', (data) => {
-        if (socket.ux !== '0' || !data) return;
-        const { targetUx, cantidad } = data;
-        db.run(`UPDATE users SET balance = balance + ? WHERE ux = ?`, [Number(cantidad), targetUx], function(err) {
+        if (socket.op !== '0' || !data) return;
+        const { targetOp, cantidad } = data;
+        db.run(`UPDATE users SET balance = balance + ? WHERE op = ?`, [Number(cantidad), targetOp], function(err) {
             if (this.changes > 0) {
-                socket.emit('admin_respuesta', `Successfully credited ${cantidad} UX to ${targetUx}`);
-                for (let [sId, sUx] of activeSessions.entries()) {
-                    if (sUx === targetUx) {
-                        db.get(`SELECT balance FROM users WHERE ux = ?`, [targetUx], (err, row) => {
+                socket.emit('admin_respuesta', `Successfully credited ${cantidad} OP to ${targetOp}`);
+                for (let [sId, sOp] of activeSessions.entries()) {
+                    if (sOp === targetOp) {
+                        db.get(`SELECT balance FROM users WHERE op = ?`, [targetOp], (err, row) => {
                             if(row) io.to(sId).emit('actualizar_balance', row.balance);
                         });
                     }
                 }
             } else {
-                socket.emit('admin_respuesta', 'Target UX does not exist.');
+                socket.emit('admin_respuesta', 'Target OP does not exist.');
             }
         });
     });
